@@ -7,6 +7,7 @@
 
 import os
 import glob
+import json
 import shutil
 import zipfile
 import tempfile
@@ -72,12 +73,21 @@ def parse_plugin_file(file_path):
 
 plugin_files = glob.glob('plugins/*.zip')
 
-for plugin_file in plugin_files:
-    try:
-        plugin_path, temp_dir = extract_and_find_plugin(plugin_file)
-        plugin_info_path = os.path.join(temp_dir, plugin_path)
-        plugin_info = parse_plugin_file(plugin_info_path)
-        print(f"{plugin_info['Name']} v{plugin_info['Version']}")
-        shutil.rmtree(temp_dir, ignore_errors=True)
-    except Exception as error:
-        print(f"Error handling plugin {plugin_file}: {error}")
+with open('index-plugins.json', 'w') as fp:
+    plugin_index = {}
+    for plugin_file in plugin_files:
+        try:
+            plugin_path, temp_dir = extract_and_find_plugin(plugin_file)
+            plugin_info_path = os.path.join(temp_dir, plugin_path)
+            plugin_info = parse_plugin_file(plugin_info_path)
+            plugin_name = plugin_info['Name']
+            if plugin_name not in plugin_index:
+                print(f"{plugin_file}")
+                plugin_index[plugin_file] = plugin_info
+                shutil.rmtree(temp_dir, ignore_errors=True)
+            else:
+                print("Error. Another plugin with name {plugin_name} already exists in the index. Skip.")
+        except Exception as error:
+            print(f"Error handling plugin {plugin_file}: {error}")
+    json.dump(plugin_index, fp)
+    print(f"index-plugins.json build with {len(plugin_index)} plugins")
