@@ -3,6 +3,7 @@
 # Author: Tomás Vírseda
 # License: GPL v3
 # Description: Retrieve MiAZ plugin index file
+# Version 0.1
 
 import os
 import requests
