@@ -82,8 +82,7 @@ with open('index-plugins.json', 'w') as fp:
             plugin_info = parse_plugin_file(plugin_info_path)
             plugin_name = plugin_info['Name']
             if plugin_name not in plugin_index:
-                print(f"{plugin_file}")
-                plugin_index[plugin_file] = plugin_info
+                plugin_index[plugin_name] = plugin_info
                 shutil.rmtree(temp_dir, ignore_errors=True)
             else:
                 print("Error. Another plugin with name {plugin_name} already exists in the index. Skip.")
