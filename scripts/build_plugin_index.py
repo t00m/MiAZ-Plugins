@@ -88,5 +88,5 @@ with open('index-plugins.json', 'w') as fp:
                 print("Error. Another plugin with name {plugin_name} already exists in the index. Skip.")
         except Exception as error:
             print(f"Error handling plugin {plugin_file}: {error}")
-    json.dump(plugin_index, fp)
+    json.dump(plugin_index, fp, sort_keys=False, indent=4)
     print(f"index-plugins.json build with {len(plugin_index)} plugins")
