@@ -13,6 +13,7 @@ import re
 import glob
 
 from gi.repository import Adw
+from gi.repository import Gdk
 from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Peas
@@ -67,6 +68,10 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
             # This is a common action: add to shortcuts
             # ~ menu_shortcut_import = self.app.get_widget('workspace-menu-shortcut-import')
             # ~ menu_shortcut_import.append_item(menuitem)
+
+            evk = self.app.get_widget('window-event-controller')
+            evk.connect("key-pressed", self._on_key_press)
+
             self.log.debug("Plugin sidebartgb activated")
 
     def toggle_sidebar(self, *args):
@@ -75,6 +80,13 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
         tgbSidebar = self.app.get_widget('workspace-togglebutton-sidebar')
         active = tgbSidebar.get_active()
         sidebar.set_visible(active)
+
+    def _on_key_press(self, event, keyval, keycode, state):
+        keyname = Gdk.keyval_name(keyval)
+        if keyname == 'Escape':
+            tgbSidebar = self.app.get_widget('workspace-togglebutton-sidebar')
+            active = tgbSidebar.get_active()
+            tgbSidebar.set_active(not active)
 
     def _on_settings_loaded(self, *args):
         group = self.app.get_widget('window-preferences-page-aspect-group-ui')
