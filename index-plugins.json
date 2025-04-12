@@ -77,6 +77,19 @@
         "Category": "Data Management",
         "Subcategory": "Export"
     },
+    "HelloWorld": {
+        "Module": "helloworld",
+        "Name": "HelloWorld",
+        "Loader": "Python3",
+        "Description": "Hello World Example Plugin",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.1",
+        "Category": "Support and Help",
+        "Subcategory": "Guides and Tutorials"
+    },
     "MiAZExport2Zip": {
         "Module": "export2zip",
         "Name": "MiAZExport2Zip",
