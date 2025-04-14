@@ -1,42 +1,16 @@
 {
-    "MiAZImportFromScan": {
-        "Module": "scan",
-        "Name": "MiAZImportFromScan",
+    "HelloWorld": {
+        "Module": "helloworld",
+        "Name": "HelloWorld",
         "Loader": "Python3",
-        "Description": "Import document from scanner",
+        "Description": "Hello World Example Plugin",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.5",
-        "Category": "Data Management",
-        "Subcategory": "Import"
-    },
-    "MiAZExport2Text": {
-        "Module": "export2text",
-        "Name": "MiAZExport2Text",
-        "Loader": "Python3",
-        "Description": "Export selected documents to plain text",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.5",
-        "Category": "Data Management",
-        "Subcategory": "Export"
-    },
-    "MiAZSidebarToggleButtonPlugin": {
-        "Module": "sidebartgb",
-        "Name": "MiAZSidebarToggleButtonPlugin",
-        "Loader": "Python3",
-        "Description": "Toggle sidebar",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
-        "Category": "Customisation and Personalisation",
-        "Subcategory": "Themes and UI Customisation"
+        "Version": "0.2",
+        "Category": "Support and Help",
+        "Subcategory": "Guides and Tutorials"
     },
     "MiAZCopy2Clipboard": {
         "Module": "copy2clipboard",
@@ -48,19 +22,6 @@
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
         "Version": "0.1",
-        "Category": "Data Management",
-        "Subcategory": "Export"
-    },
-    "MiAZExport2Dir": {
-        "Module": "export2dir",
-        "Name": "MiAZExport2Dir",
-        "Loader": "Python3",
-        "Description": "Export selected documents to a directory",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.5",
         "Category": "Data Management",
         "Subcategory": "Export"
     },
@@ -77,18 +38,31 @@
         "Category": "Data Management",
         "Subcategory": "Export"
     },
-    "HelloWorld": {
-        "Module": "helloworld",
-        "Name": "HelloWorld",
+    "MiAZExport2Dir": {
+        "Module": "export2dir",
+        "Name": "MiAZExport2Dir",
         "Loader": "Python3",
-        "Description": "Hello World Example Plugin",
+        "Description": "Export selected documents to a directory",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.2",
-        "Category": "Support and Help",
-        "Subcategory": "Guides and Tutorials"
+        "Version": "0.5",
+        "Category": "Data Management",
+        "Subcategory": "Export"
+    },
+    "MiAZExport2Text": {
+        "Module": "export2text",
+        "Name": "MiAZExport2Text",
+        "Loader": "Python3",
+        "Description": "Export selected documents to plain text",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.5",
+        "Category": "Data Management",
+        "Subcategory": "Export"
     },
     "MiAZExport2Zip": {
         "Module": "export2zip",
@@ -102,5 +76,44 @@
         "Version": "0.5",
         "Category": "Data Management",
         "Subcategory": "Export"
+    },
+    "MiAZImportFromScan": {
+        "Module": "scan",
+        "Name": "MiAZImportFromScan",
+        "Loader": "Python3",
+        "Description": "Import document from scanner",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.5",
+        "Category": "Data Management",
+        "Subcategory": "Import"
+    },
+    "MiAZSidebarToggleButtonPlugin": {
+        "Module": "sidebartgb",
+        "Name": "MiAZSidebarToggleButtonPlugin",
+        "Loader": "Python3",
+        "Description": "Toggle sidebar",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.6",
+        "Category": "Customisation and Personalisation",
+        "Subcategory": "Themes and UI Customisation"
+    },
+    "MiAZSidebarRepoSwitcher": {
+        "Module": "reposwitcher",
+        "Name": "MiAZSidebarRepoSwitcher",
+        "Loader": "Python3",
+        "Description": "Sidebar Repository switcher",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.1",
+        "Category": "Customisation and Personalisation",
+        "Subcategory": "Themes and UI Customisation"
     }
 }
