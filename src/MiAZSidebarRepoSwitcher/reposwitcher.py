@@ -56,7 +56,6 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
         if dd_repo is None:
             #### Configure repository dropdown
             dd_repo = factory.create_dropdown_generic(item_type=Repository, ellipsize=False, enable_search=True)
-            dd_repo.connect("notify::selected-item", self._on_use_repo)
             self.app.add_widget('sidebar-repo-switcher', dd_repo)
             dd_repo.set_valign(Gtk.Align.CENTER)
             dd_repo.set_hexpand(False)
@@ -67,6 +66,18 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
             sidebar_box_title.remove(sidebar_title)
             sidebar_box_title.append(dd_repo)
             sidebar_box_title.set_hexpand(False)
+
+            # Set active current repository
+            config = self.app.get_config_dict()
+            repo_id = config['App'].get('current')
+
+            n = 0
+            for repo in dd_repo.get_model():
+                if repo.id == repo_id:
+                    dd_repo.set_selected(n)
+                n += 1
+
+            dd_repo.connect("notify::selected-item", self._on_use_repo)
 
             # Create menu item for plugin
             # ~ menuitem = factory.create_menuitem('togglebutton_sidebar', 'Toggle sidebar button', None, None, [])
@@ -83,20 +94,40 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
             self.log.debug(f"Plugin {__class__.__name__} activated")
 
     def _on_use_repo(self, *args):
+        """NEW METHOD: Restart Application to avoid issues with plugins
+        not being able to disable their functionality
         """
-        Load repository automatically whenever is selected.
-        Once loaded, it is set as the default in the app config.
-        """
-        workflow = self.app.get_service('workflow')
         dd_repo = self.app.get_widget('sidebar-repo-switcher')
         repo = dd_repo.get_selected_item()
         if repo is None:
             return
+
+        # Save chosen repository
         self.log.debug(f"Repository chosen: {repo.id}")
         config = self.app.get_config_dict()
         config['App'].set('current', repo.id)
-        valid = workflow.switch_start()
-        self.log.debug(f"Repository {repo.id} loaded successfully? {valid}")
+
+        # Restart app
+        actions = self.app.get_service('actions')
+        actions.application_restart()
+
+    # ~ def _on_use_repo(self, *args):
+        # ~ """
+        # ~ OLD METHOD: Load repository automatically whenever is selected.
+        # ~ Once loaded, it is set as the default in the app config.
+        # ~ Some plugins functionality remain active
+        # ~ """
+        # ~ workflow = self.app.get_service('workflow')
+        # ~ dd_repo = self.app.get_widget('sidebar-repo-switcher')
+        # ~ repo = dd_repo.get_selected_item()
+        # ~ if repo is None:
+            # ~ return
+        # ~ self.log.debug(f"Repository chosen: {repo.id}")
+        # ~ config = self.app.get_config_dict()
+        # ~ config['App'].set('current', repo.id)
+        # ~ self.log.info(f"Repository '{repo.id}' set to default")
+        # ~ valid = workflow.switch_start()
+        # ~ self.log.debug(f"Repository {repo.id} loaded successfully? {valid}")
 
     # ~ def _on_settings_loaded(self, *args):
         # ~ group = self.app.get_widget('window-preferences-page-aspect-group-ui')
