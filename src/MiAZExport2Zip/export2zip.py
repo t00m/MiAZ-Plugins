@@ -104,13 +104,12 @@ class Export2Zip(GObject.GObject, Peas.Activatable):
                     workspace = self.app.get_widget('workspace')
                     window = workspace.get_root()
                     body=''
-                    srvdlg.create(enable_response=False, dtype='info', title=_('Export successfull'), body=body).present(window)
+                    srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present(window)
 
 
         window = self.app.get_widget('window')
         clsdlg = MiAZFileChooserDialog(self.app)
         filechooser_dialog = clsdlg.create(
-                    enable_response=True,
                     title=_('Choose a directory to export the Zip archive'),
                     target = 'FOLDER',
                     callback = filechooser_response)

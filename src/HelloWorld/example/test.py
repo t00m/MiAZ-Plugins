@@ -7,4 +7,4 @@ class PluginTest:
         srvdlg = self.app.get_service('dialogs')
         body = ''
         window = workspace.get_root()
-        srvdlg.create(enable_response=False, dtype='info', title="Hello World", body=body).present(window)
+        srvdlg.create(dtype='info', title="Hello World", body=body).present(window)

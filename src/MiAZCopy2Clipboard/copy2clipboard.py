@@ -64,4 +64,4 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
         workspace.get_clipboard().set(text)
         body = ''
         window = workspace.get_root()
-        srvdlg.create(enable_response=False, dtype='info', title=_(f"{len(items)} documents copied to clipboard"), body=body).present(window)
+        srvdlg.create(dtype='info', title=_(f"{len(items)} documents copied to clipboard"), body=body).present(window)

@@ -68,5 +68,5 @@ class HelloWorld(GObject.GObject, Peas.Activatable):
         title = _(f'<big>Row active {active}</big>')
         body=''
         window = row.get_root()
-        dialog = srvdlg.create(enable_response=False, dtype=dtype, title=title, body=body, widget=None)
+        dialog = srvdlg.create(dtype=dtype, title=title, body=body, widget=None)
         dialog.present(window)

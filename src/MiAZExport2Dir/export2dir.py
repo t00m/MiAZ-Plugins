@@ -123,7 +123,7 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
                     srvdlg = self.app.get_service('dialogs')
                     window = workspace.get_root()
                     body = f"<big>Check your default file browser</big>"
-                    srvdlg.create(enable_response=False, dtype='info', title=_('Export successfull'), body=body).present()
+                    srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present()
 
         patterns = {
             'Y': _('Year'),
@@ -139,7 +139,6 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
 
         clsdlg = MiAZFileChooserDialog(self.app)
         filechooser_dialog = clsdlg.create(
-                    enable_response=True,
                     title=_('Choose a directory to export selected files'),
                     target = 'FOLDER',
                     callback = filechooser_response,
