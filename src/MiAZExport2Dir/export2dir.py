@@ -92,13 +92,12 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
                 content_area = dialog.get_extra_child()
                 box = content_area.get_first_child()
                 filechooser = self.app.get_widget('plugin-export2dir-filechooser')
-                hbox = box.get_last_child()
-                toggle_pattern = hbox.get_first_child()
+                toggle_pattern = self.app.get_widget('plugin-export2dir-chkpattern')
+                entry = self.app.get_widget('plugin-export2dir-etypattern')
                 gfile = filechooser.get_file()
                 if gfile is not None:
                     dirpath = gfile.get_path()
                     if toggle_pattern.get_active():
-                        entry = toggle_pattern.get_next_sibling()
                         keys = [key for key in entry.get_text()]
                         for item in items:
                             thispath = []
@@ -149,10 +148,10 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         filechooser_widget.get_style_context().add_class(class_name='frame')
         # Export with pattern
         contents = filechooser_dialog.get_extra_child()
-        box = contents.get_first_child()
         hbox = factory.create_box_horizontal()
         chkPattern = factory.create_button_check(title=_('Export with pattern'), callback=None)
-        etyPattern = Gtk.Entry()
+        self.app.add_widget('plugin-export2dir-chkpattern', chkPattern)
+        etyPattern = self.app.add_widget('plugin-export2dir-etypattern', Gtk.Entry())
         etyPattern.set_text('CYmGP')  # /{target}/{Country}/{Year}/{month}/{Group}/{Purpose}
         widgets = []
         for key in patterns:
@@ -164,7 +163,5 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         hbox.append(chkPattern)
         hbox.append(etyPattern)
         hbox.append(btpPattern)
-        box.append(hbox)
-        # ~ filechooser.show()
-
+        contents.append(hbox)
         filechooser_dialog.present(window)
