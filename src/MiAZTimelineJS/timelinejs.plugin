@@ -1,6 +1,6 @@
 [Plugin]
 Module=timelinejs
-Name=MiAZTimelineJSPlugin
+Name=MiAZTimelineJS
 Loader=Python3
 Description=Timeline
 Authors=Tomás Vírseda <tomasvirseda@gmail.com>
