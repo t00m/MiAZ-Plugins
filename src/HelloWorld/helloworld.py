@@ -24,16 +24,26 @@ from example.test import PluginTest
 class HelloWorld(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'HelloWorldPlugin'
     object = GObject.Property(type=GObject.Object)
+    info = {}
 
-    def __init__(self):
-        self.log = MiAZLog('Plugin.HelloWorld')
-        self.app = None
+    def register_plugin(self):
+        plugin_file = __file__.replace('.py', '.plugin')
+        self.info = self.object.get_plugin_attributes(plugin_file)
+        module = self.info['Module']
+        self.app.add_widget(f'plugin-{module}', self)
+        self.log.info(f"Registered widget plugin plugin-{module}")
 
     def do_activate(self):
         """Plugin activation"""
 
         # Get app pointer
         self.app = self.object.app
+
+        # Register logger
+        self.log = MiAZLog('Plugin.HelloWorld')
+
+        # Register plugin
+        self.register_plugin()
 
         # Get necessary services
 
@@ -53,6 +63,19 @@ class HelloWorld(GObject.GObject, Peas.Activatable):
         print("Deactivation not implemented. Restart app to disable plugins.")
 
     def startup(self, *args):
+        factory = self.app.get_service('factory')
+
+        # Create menu item for plugin
+        menuitem = factory.create_menuitem('plugin-menuitem-helloworld', 'Hello World!', self._on_menuitem_activate, None, [])
+        self.app.add_widget('window-headerbar-togglebutton-workspace-view', menuitem)
+
+        # Add plugin to its default (sub)category
+        category = self.info['Category']
+        subcategory = self.info['Subcategory']
+        subcategory_submenu = self.app.install_plugin_menu(category, subcategory)
+        subcategory_submenu.append_item(menuitem)
+
+    def _on_menuitem_activate(self, *args):
         test = PluginTest(self.app)
 
     def _on_settings_loaded(self, *args):
@@ -70,3 +93,6 @@ class HelloWorld(GObject.GObject, Peas.Activatable):
         window = row.get_root()
         dialog = srvdlg.create(dtype=dtype, title=title, body=body, widget=None)
         dialog.present(window)
+
+    def show_settings(self):
+        self.log.info("Got it!")
