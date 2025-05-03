@@ -1,16 +1,55 @@
 {
-    "HelloWorld": {
-        "Module": "helloworld",
-        "Name": "HelloWorld",
+    "MiAZImportFromScan": {
+        "Module": "scan",
+        "Name": "MiAZImportFromScan",
         "Loader": "Python3",
-        "Description": "Hello World Example Plugin",
+        "Description": "Import document from scanner",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.2",
-        "Category": "Support and Help",
-        "Subcategory": "Guides and Tutorials"
+        "Version": "0.6",
+        "Category": "Data Management",
+        "Subcategory": "Import"
+    },
+    "MiAZExport2Text": {
+        "Module": "export2text",
+        "Name": "MiAZExport2Text",
+        "Loader": "Python3",
+        "Description": "Export selected documents to plain text",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.6",
+        "Category": "Data Management",
+        "Subcategory": "Export"
+    },
+    "MiAZSidebarToggleButtonPlugin": {
+        "Module": "sidebartgb",
+        "Name": "MiAZSidebarToggleButtonPlugin",
+        "Loader": "Python3",
+        "Description": "Toggle sidebar",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.7",
+        "Category": "Customisation and Personalisation",
+        "Subcategory": "User Interface"
+    },
+    "MiAZTimelineJS": {
+        "Module": "timelinejs",
+        "Name": "MiAZTimelineJS",
+        "Loader": "Python3",
+        "Description": "Timeline",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.3",
+        "Category": "Visualisation and diagrams",
+        "Subcategory": "Data visualisation"
     },
     "MiAZCopy2Clipboard": {
         "Module": "copy2clipboard",
@@ -22,19 +61,6 @@
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
         "Version": "0.2",
-        "Category": "Data Management",
-        "Subcategory": "Export"
-    },
-    "MiAZExport2CSV": {
-        "Module": "export2csv",
-        "Name": "MiAZExport2CSV",
-        "Loader": "Python3",
-        "Description": "Export selected documents to CSV",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
         "Category": "Data Management",
         "Subcategory": "Export"
     },
@@ -51,58 +77,6 @@
         "Category": "Data Management",
         "Subcategory": "Export"
     },
-    "MiAZExport2Text": {
-        "Module": "export2text",
-        "Name": "MiAZExport2Text",
-        "Loader": "Python3",
-        "Description": "Export selected documents to plain text",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
-        "Category": "Data Management",
-        "Subcategory": "Export"
-    },
-    "MiAZExport2Zip": {
-        "Module": "export2zip",
-        "Name": "MiAZExport2Zip",
-        "Loader": "Python3",
-        "Description": "Export selected documents to a zip file",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
-        "Category": "Data Management",
-        "Subcategory": "Export"
-    },
-    "MiAZImportFromScan": {
-        "Module": "scan",
-        "Name": "MiAZImportFromScan",
-        "Loader": "Python3",
-        "Description": "Import document from scanner",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
-        "Category": "Data Management",
-        "Subcategory": "Import"
-    },
-    "MiAZSidebarToggleButtonPlugin": {
-        "Module": "sidebartgb",
-        "Name": "MiAZSidebarToggleButtonPlugin",
-        "Loader": "Python3",
-        "Description": "Toggle sidebar",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.7",
-        "Category": "Customisation and Personalisation",
-        "Subcategory": "User Interface"
-    },
     "MiAZSidebarRepoSwitcher": {
         "Module": "reposwitcher",
         "Name": "MiAZSidebarRepoSwitcher",
@@ -116,17 +90,43 @@
         "Category": "Customisation and Personalisation",
         "Subcategory": "Themes and UI Customisation"
     },
-    "MiAZTimelineJS": {
-        "Module": "timelinejs",
-        "Name": "MiAZTimelineJS",
+    "MiAZExport2CSV": {
+        "Module": "export2csv",
+        "Name": "MiAZExport2CSV",
         "Loader": "Python3",
-        "Description": "Timeline",
+        "Description": "Export selected documents to CSV",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.6",
+        "Category": "Data Management",
+        "Subcategory": "Export"
+    },
+    "HelloWorld": {
+        "Module": "helloworld",
+        "Name": "HelloWorld",
+        "Loader": "Python3",
+        "Description": "Hello World Example Plugin",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
         "Version": "0.2",
-        "Category": "Visualisation and diagrams",
-        "Subcategory": "Data visualisation"
+        "Category": "Support and Help",
+        "Subcategory": "Guides and Tutorials"
+    },
+    "MiAZExport2Zip": {
+        "Module": "export2zip",
+        "Name": "MiAZExport2Zip",
+        "Loader": "Python3",
+        "Description": "Export selected documents to a zip file",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.6",
+        "Category": "Data Management",
+        "Subcategory": "Export"
     }
 }
