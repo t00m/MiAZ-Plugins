@@ -18,32 +18,42 @@ from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Peas
 
-from MiAZ.backend.log import MiAZLog
+from MiAZ.backend.pluginsystem import MiAZPlugin
 
 
 class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZSidebarToggleButtonPlugin'
     object = GObject.Property(type=GObject.Object)
-
-    def __init__(self):
-        self.log = MiAZLog('Plugin.SidebarTgb')
-        self.app = None
-        self.scanapp = None
+    plugin = None
+    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
+        """Plugin activation"""
+        # Setup plugin
+        ## Get pointer to app
         self.app = self.object.app
-        actions = self.app.get_service('actions')
+        self.plugin = MiAZPlugin(self.app)
+
+        ## Initialize plugin
+        self.plugin.register(self.file)
+
+        ## Get logger
+        self.log = self.plugin.get_logger()
+
+        # Connect signals to startup
         workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.add_menuitem)
-        actions.connect('settings-loaded', self._on_settings_loaded)
+        workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
-        self.log.error("Plugin deactivated")
+        self.log.warning("Deactivation not implemented")
 
-    def check_plugin(self, *args):
-        self.log.info(f"Plugin loaded? {self.plugin_info.is_loaded()}")
+    def startup(self, *args):
+        # Create menu item for plugin
+        menuitem = self.plugin.get_menu_item(callback=None)
 
-    def add_menuitem(self, *args):
+        # Add plugin to its default (sub)category
+        self.plugin.install_menu_entry(menuitem)
+
         factory = self.app.get_service('factory')
         sidebar = self.app.get_widget('sidebar')
         hdb_left = self.app.get_widget('headerbar-left-box')
@@ -56,18 +66,6 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
             tgbSidebar.set_hexpand(False)
             tgbSidebar.get_style_context().add_class(class_name='dimmed')
             hdb_left.append(tgbSidebar)
-
-            # Create menu item for plugin
-            menuitem = factory.create_menuitem('togglebutton_sidebar', 'Toggle sidebar button', None, None, [])
-            self.app.add_widget('window-headerbar-togglebutton-sidebar', menuitem)
-
-            # ~ # Add plugin to its default (sub)category
-            category = self.app.get_widget('workspace-menu-plugins-visualisation-and-diagrams-dashboard-widgets')
-            category.append_item(menuitem)
-
-            # This is a common action: add to shortcuts
-            # ~ menu_shortcut_import = self.app.get_widget('workspace-menu-shortcut-import')
-            # ~ menu_shortcut_import.append_item(menuitem)
 
             evk = self.app.get_widget('window-event-controller')
             evk.connect("key-pressed", self._on_key_press)

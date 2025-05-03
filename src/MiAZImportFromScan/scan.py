@@ -16,27 +16,45 @@ from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Peas
 
-from MiAZ.backend.log import MiAZLog
+from MiAZ.backend.pluginsystem import MiAZPlugin
 
 
 class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZImportFromScanPlugin'
     object = GObject.Property(type=GObject.Object)
-
-    def __init__(self):
-        self.log = MiAZLog('Plugin.AddFromScanner')
-        self.app = None
-        self.scanapp = None
+    plugin = None
+    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
+        """Plugin activation"""
+        # Setup plugin
+        ## Get pointer to app
         self.app = self.object.app
+        self.plugin = MiAZPlugin(self.app)
+
+        ## Initialize plugin
+        self.plugin.register(self.file)
+
+        ## Get logger
+        self.log = self.plugin.get_logger()
+
+        # Connect signals to startup
         workspace = self.app.get_widget('workspace')
+
+        # Check any scan app and connect signal to startup
         scanapp = self._search_scan_app()
         if scanapp is not None:
-            workspace.connect('workspace-loaded', self.add_menuitem)
+            workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
-        self.log.debug("Plugin deactivation not implemented")
+        self.log.warning("Deactivation not implemented")
+
+    def startup(self, *args):
+        # Create menu item for plugin
+        menuitem = self.plugin.get_menu_item(callback=self.exec_scanner)
+
+        # Add plugin to its default (sub)category
+        self.plugin.install_menu_entry(menuitem)
 
     def _search_scan_app(self):
         scanapp = None
@@ -60,22 +78,6 @@ class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
             # Not available in Windows/MSYS2
             self.log.error(f"Plugin 'scan' couldn't be activated: {error}")
         return scanapp
-
-    def add_menuitem(self, *args):
-        if self.app.get_widget('workspace-menu-import-scan') is None:
-            factory = self.app.get_service('factory')
-
-            # Create menu item for plugin
-            menuitem = factory.create_menuitem('import_scan', '... from scanner', self.exec_scanner, None, [])
-            self.app.add_widget('workspace-menu-import-scan', menuitem)
-
-            # Add plugin to its default (sub)category
-            category = self.app.get_widget('workspace-menu-plugins-data-management-import')
-            category.append_item(menuitem)
-
-            # This is a common action: add to shortcuts
-            menu_shortcut_import = self.app.get_widget('workspace-menu-shortcut-import')
-            menu_shortcut_import.append_item(menuitem)
 
     def exec_scanner(self, *args):
         scanapp = self._search_scan_app()

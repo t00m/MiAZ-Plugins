@@ -16,7 +16,7 @@ from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import Peas
 
-from MiAZ.backend.log import MiAZLog
+from MiAZ.backend.pluginsystem import MiAZPlugin
 from MiAZ.backend.models import Country, Date, Group
 from MiAZ.backend.models import Purpose, SentBy, SentTo
 from MiAZ.frontend.desktop.services.dialogs import MiAZFileChooserDialog
@@ -35,34 +35,35 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
 
     __gtype_name__ = 'MiAZExport2DirPlugin'
     object = GObject.Property(type=GObject.Object)
-
-    def __init__(self):
-        self.log = MiAZLog('Plugin.Export2Dir')
-        self.app = None
+    plugin = None
+    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
+        """Plugin activation"""
+        # Setup plugin
+        ## Get pointer to app
         self.app = self.object.app
+        self.plugin = MiAZPlugin(self.app)
+
+        ## Initialize plugin
+        self.plugin.register(self.file)
+
+        ## Get logger
+        self.log = self.plugin.get_logger()
+
+        # Connect startup signals
         workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.add_menuitem)
+        workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
         print("do_deactivate")
 
-    def add_menuitem(self, *args):
-        if self.app.get_widget('workspace-menu-multiple-menu-export-item-export2dir') is None:
-            factory = self.app.get_service('factory')
+    def startup(self, *args):
+        # Create menu item for plugin
+        menuitem = self.plugin.get_menu_item(callback=self.export)
 
-            # Create menu item for plugin
-            menuitem = factory.create_menuitem('export-to-dir', _('... to directory'), self.export, None, [])
-            self.app.add_widget('workspace-menu-multiple-menu-export-item-export2dir', menuitem)
-
-            # Add plugin to its default (sub)category
-            category = self.app.get_widget('workspace-menu-plugins-data-management-export')
-            category.append_item(menuitem)
-
-            # This is a common action: add to shortcuts
-            submenu_export = self.app.get_widget('workspace-menu-selection-menu-export')
-            submenu_export.append_item(menuitem)
+        # Add plugin to its default (sub)category
+        self.plugin.install_menu_entry(menuitem)
 
     def export(self, *args):
         actions = self.app.get_service('actions')

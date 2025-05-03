@@ -14,41 +14,40 @@ from gettext import gettext as _
 from gi.repository import GObject
 from gi.repository import Peas
 
-from MiAZ.backend.log import MiAZLog
-
+from MiAZ.backend.pluginsystem import MiAZPlugin
 
 class Copy2Clipboard(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZCopy2ClipboardPlugin'
     object = GObject.Property(type=GObject.Object)
-
-    def __init__(self):
-        self.log = MiAZLog('Plugin.Copy2Clipboard')
-        self.app = None
+    plugin = None
+    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
+        """Plugin activation"""
+        # Setup plugin
+        ## Get pointer to app
         self.app = self.object.app
+        self.plugin = MiAZPlugin(self.app)
+
+        ## Initialize plugin
+        self.plugin.register(self.file)
+
+        ## Get logger
+        self.log = self.plugin.get_logger()
+
+        # Connect signals to startup
         workspace = self.app.get_widget('workspace')
         workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
-        print("Deactivation not implemented. Restart app to disable plugins.")
-
+        self.log.warning("Deactivation not implemented")
 
     def startup(self, *args):
-        if self.app.get_widget('workspace-menu-export-copy2clipboard') is None:
-            factory = self.app.get_service('factory')
+        # Create menu item for plugin
+        menuitem = self.plugin.get_menu_item(callback=self.export)
 
-            # Create menu item for plugin
-            menuitem = factory.create_menuitem('copy-to-clipboard', _('... to clipboard'), self.export, None, [])
-            self.app.add_widget('workspace-menu-export-copy2clipboard', menuitem)
-
-            # Add plugin to its default (sub)category
-            category = self.app.get_widget('workspace-menu-plugins-data-management-export')
-            category.append_item(menuitem)
-
-            # This is a common action: add to shortcuts
-            submenu_export = self.app.get_widget('workspace-menu-selection-menu-export')
-            submenu_export.append_item(menuitem)
+        # Add plugin to its default (sub)category
+        self.plugin.install_menu_entry(menuitem)
 
     def export(self, *args):
         srvdlg = self.app.get_service('dialogs')
