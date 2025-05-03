@@ -1,6 +1,6 @@
 [Plugin]
 Module=sidebartgb
-Name=MiAZSidebarToggleButtonPlugin
+Name=MiAZSidebarToggle
 Loader=Python3
 Description=Toggle sidebar
 Authors=Tomás Vírseda <tomasvirseda@gmail.com>

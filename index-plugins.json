@@ -25,9 +25,9 @@
         "Category": "Data Management",
         "Subcategory": "Export"
     },
-    "MiAZSidebarToggleButtonPlugin": {
+    "MiAZSidebarToggle": {
         "Module": "sidebartgb",
-        "Name": "MiAZSidebarToggleButtonPlugin",
+        "Name": "MiAZSidebarToggle",
         "Loader": "Python3",
         "Description": "Toggle sidebar",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
@@ -83,12 +83,12 @@
         "Loader": "Python3",
         "Description": "Sidebar Repository switcher",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2023 Tom\u00e1s V\u00edrseda",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.1",
+        "Version": "0.2",
         "Category": "Customisation and Personalisation",
-        "Subcategory": "Themes and UI Customisation"
+        "Subcategory": "User Interface"
     },
     "MiAZExport2CSV": {
         "Module": "export2csv",

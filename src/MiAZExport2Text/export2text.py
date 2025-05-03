@@ -44,11 +44,12 @@ class Export2Text(GObject.GObject, Peas.Activatable):
         self.log.warning("Deactivation not implemented")
 
     def startup(self, *args):
-        # Create menu item for plugin
-        menuitem = self.plugin.get_menu_item(callback=self.export)
+        if not self.plugin.menu_item_loaded():
+            # Create menu item for plugin
+            menuitem = self.plugin.get_menu_item(callback=self.export)
 
-        # Add plugin to its default (sub)category
-        self.plugin.install_menu_entry(menuitem)
+            # Add plugin to its default (sub)category
+            self.plugin.install_menu_entry(menuitem)
 
     def export(self, *args):
         actions = self.app.get_service('actions')

@@ -53,11 +53,12 @@ class HelloWorld(GObject.GObject, Peas.Activatable):
         print("Deactivation not implemented. Restart app to disable plugins.")
 
     def startup(self, *args):
-        # Create menu item for plugin
-        menuitem = self.plugin.get_menu_item(callback=self._on_menuitem_activate)
+        if not self.plugin.menu_item_loaded():
+            # Create menu item for plugin
+            menuitem = self.plugin.get_menu_item(callback=self._on_menuitem_activate)
 
-        # Add plugin to its default (sub)category
-        self.plugin.install_menu_entry(menuitem)
+            # Add plugin to its default (sub)category
+            self.plugin.install_menu_entry(menuitem)
 
     def _on_menuitem_activate(self, *args):
         test = PluginTest(self.app)

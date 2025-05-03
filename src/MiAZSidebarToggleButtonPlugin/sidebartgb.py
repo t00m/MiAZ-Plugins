@@ -48,29 +48,30 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
         self.log.warning("Deactivation not implemented")
 
     def startup(self, *args):
-        # Create menu item for plugin
-        menuitem = self.plugin.get_menu_item(callback=None)
+        if not self.plugin.menu_item_loaded():
+            # Create menu item for plugin
+            menuitem = self.plugin.get_menu_item(callback=None)
 
-        # Add plugin to its default (sub)category
-        self.plugin.install_menu_entry(menuitem)
+            # Add plugin to its default (sub)category
+            self.plugin.install_menu_entry(menuitem)
 
-        factory = self.app.get_service('factory')
-        sidebar = self.app.get_widget('sidebar')
-        hdb_left = self.app.get_widget('headerbar-left-box')
-        tgbSidebar = self.app.get_widget('workspace-togglebutton-sidebar')
-        if tgbSidebar is None:
-            tgbSidebar = factory.create_button_toggle('io.github.t00m.MiAZ-sidebar-show-left-symbolic', callback=self.toggle_sidebar)
-            self.app.add_widget('workspace-togglebutton-sidebar', tgbSidebar)
-            tgbSidebar.set_tooltip_text("Show sidebar and filters")
-            tgbSidebar.set_active(True)
-            tgbSidebar.set_hexpand(False)
-            tgbSidebar.get_style_context().add_class(class_name='dimmed')
-            hdb_left.append(tgbSidebar)
+            factory = self.app.get_service('factory')
+            sidebar = self.app.get_widget('sidebar')
+            hdb_left = self.app.get_widget('headerbar-left-box')
+            tgbSidebar = self.app.get_widget('workspace-togglebutton-sidebar')
+            if tgbSidebar is None:
+                tgbSidebar = factory.create_button_toggle('io.github.t00m.MiAZ-sidebar-show-left-symbolic', callback=self.toggle_sidebar)
+                self.app.add_widget('workspace-togglebutton-sidebar', tgbSidebar)
+                tgbSidebar.set_tooltip_text("Show sidebar and filters")
+                tgbSidebar.set_active(True)
+                tgbSidebar.set_hexpand(False)
+                tgbSidebar.get_style_context().add_class(class_name='dimmed')
+                hdb_left.append(tgbSidebar)
 
-            evk = self.app.get_widget('window-event-controller')
-            evk.connect("key-pressed", self._on_key_press)
+                evk = self.app.get_widget('window-event-controller')
+                evk.connect("key-pressed", self._on_key_press)
 
-            self.log.debug("Plugin sidebartgb activated")
+                self.log.debug("Plugin sidebartgb activated")
 
     def toggle_sidebar(self, *args):
         """ Sidebar not visible when active = False"""
