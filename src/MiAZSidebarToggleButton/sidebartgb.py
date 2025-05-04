@@ -35,7 +35,7 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file)
+        self.plugin.register(self.file, self)
 
         ## Get logger
         self.log = self.plugin.get_logger()
@@ -66,6 +66,13 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
                 tgbSidebar.set_active(True)
                 tgbSidebar.set_hexpand(False)
                 tgbSidebar.get_style_context().add_class(class_name='dimmed')
+
+                visible = self.plugin.get_config_key('icon_visible')
+                if visible is None:
+                    visible = True
+                    self.plugin.set_config_key('icon_visible', True)
+                tgbSidebar.set_visible(visible)
+
                 hdb_left.append(tgbSidebar)
 
                 evk = self.app.get_widget('window-event-controller')
@@ -89,7 +96,7 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
 
     def _on_settings_loaded(self, *args):
         group = self.app.get_widget('window-preferences-page-aspect-group-ui')
-        row = Adw.SwitchRow(title=_("Display sidebar toggle button?"), subtitle=_('Plugin Sidebar ToggleButton'))
+        row = Adw.SwitchRow(title=_("Display sidebar toggle button?"))
         row.connect('notify::active', self._on_activate_setting)
         tgbSidebar = self.app.get_widget('workspace-togglebutton-sidebar')
         visible = tgbSidebar.get_visible()
@@ -97,10 +104,44 @@ class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
         group.add(row)
 
     def _on_activate_setting(self, row, gparam):
-        active = row.get_active()
+        # Set togglebutton status
         togglebutton = self.app.get_widget('workspace-togglebutton-sidebar')
-        togglebutton.set_visible(active)
+        visible = row.get_active()
+        togglebutton.set_visible(visible)
+
+        # Update plugin config
+        self.plugin.set_config_key('icon_visible', visible)
 
 
+    def show_settings(self, widget):
+        util = self.app.get_service('util')
+
+        # Build preferences dialog
+        dialog = Adw.PreferencesDialog()
+        desc = self.plugin.get_plugin_info_key('Description')
+        page_title = _(desc)
+        page_icon = "io.github.t00m.MiAZ-preferences-ui"
+        page = Adw.PreferencesPage(title=page_title, icon_name=page_icon)
+        dialog.add(page)
+        group = Adw.PreferencesGroup()
+        group.set_title('User interface')
+        page.add(group)
+
+        # Row for option "Display Sidebar Togglebutton?"
+        row = Adw.SwitchRow(title=_("Display Sidebar togglebutton?"))
+        row.connect('notify::active', self._on_activate_setting)
+
+        config = self.plugin.get_config_data()
+        try:
+            visible = config['icon_visible']
+        except:
+            visible = config['icon_visible'] = True
+            self.plugin.set_config_data(config)
+
+        tgbWSToggleView = self.app.get_widget('workspace-togglebutton-sidebar')
+        row.set_active(visible)
+        group.add(row)
+
+        dialog.present(widget.get_root())
 
 
