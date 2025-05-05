@@ -1,0 +1,1 @@
+rm -rf ./HelloWorld/example/__pycache__ ./HelloWorld/__pycache__ ./MiAZCopy2Clipboard/__pycache__ ./MiAZExport2CSV/__pycache__ ./MiAZExport2Dir/__pycache__ ./MiAZExport2Text/__pycache__ ./MiAZExport2Zip/__pycache__ ./MiAZImportFromScan/__pycache__ ./MiAZSidebarRepoSwitcher/__pycache__ ./MiAZSidebarToggleButton/__pycache__
