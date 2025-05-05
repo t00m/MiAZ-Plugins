@@ -19,7 +19,7 @@ from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Peas
 
-from MiAZ.backend.pluginsystem import MiAZPlugin
+from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 from MiAZ.backend.models import Repository
 from MiAZ.backend.config import MiAZConfigRepositories
 

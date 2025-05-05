@@ -15,7 +15,7 @@ from gi.repository import GObject
 from gi.repository import Peas
 from gi.repository import Adw
 
-from MiAZ.backend.pluginsystem import MiAZPlugin
+from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
 path = os.path.join(os.path.abspath(__file__), 'example')
 sys.path.insert(1, os.path.abspath(__file__))

@@ -14,7 +14,7 @@ from gettext import gettext as _
 from gi.repository import GObject
 from gi.repository import Peas
 
-from MiAZ.backend.pluginsystem import MiAZPlugin
+from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
 class Copy2Clipboard(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZCopy2ClipboardPlugin'
