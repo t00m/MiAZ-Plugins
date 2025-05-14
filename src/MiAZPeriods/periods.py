@@ -15,6 +15,7 @@ import glob
 from gi.repository import Adw
 from gi.repository import Gdk
 from gi.repository import Gio
+from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Peas
 
@@ -156,15 +157,34 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
             self.util.json_save(data_file, periodicity)
 
             # Periodicity dropdown for custom filters
-            # ~ config = MiAZConfigPeriodicity(self.app, self.plugin)
-            dd_period = self.factory.create_dropdown_generic(item_type=Periodicity, ellipsize=False, enable_search=True)
-            self.config.connect('used-updated', self.actions.dropdown_populate, dd_period, Periodicity, False, False)
-            # ~ self.config.connect('used-updated', self._on_config_used_updated, dd_period, Periodicity, False, False)
-            self.actions.dropdown_populate(self.config, dd_period, Periodicity, any_value=True)
-            dd_period.set_hexpand(True)
-            boxDropdown = self.factory.create_box_filter('Period', dd_period)
+            self.dd_period = self.factory.create_dropdown_generic(item_type=Periodicity, ellipsize=False, enable_search=True)
+            self.dd_period.connect("notify::selected-item", self.workspace.update)
+            self.config.connect('used-updated', self.actions.dropdown_populate, self.dd_period, Periodicity, False, False)
+            self.actions.dropdown_populate(self.config, self.dd_period, Periodicity, any_value=True)
+            self.dd_period.set_hexpand(True)
+            boxDropdown = self.factory.create_box_filter('Period', self.dd_period)
             row = self.app.get_widget('sidebar-box-custom-filters')
             row.append(boxDropdown)
+
+            self.workspace.register_filter_view('periods', self._do_filter_view_period)
+
+    def _do_filter_view_period(self, item, filter_list_model):
+        match = False
+        docid = item.id
+        pid = self.dd_period.get_selected_item().id
+        datafile = self.plugin.get_data_file()
+        data = self.util.json_load(datafile)
+
+        if pid == 'Any':
+            match = True
+        else:
+            try:
+                docs = data['periods'][pid]
+                if docid in docs:
+                    match = True
+            except KeyError:
+                match = False
+        return match
 
     def _set_periodicity(self, *args):
         selected_items = self.workspace.get_selected_items()
@@ -178,7 +198,7 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
             parent = self.app.get_widget('window')
             self.srvdlg.show_error(title=_('Action ignored'), body=_('<big>You must select at least one document</big>'), parent=parent)
 
-    def _on_set_periodicity_response(self, dialog, response, dropdown):
+    def _get_data(self):
         datafile = self.plugin.get_data_file()
         try:
             data = self.util.json_load(filepath=datafile)
@@ -188,43 +208,75 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
             data['documents'] = {}
             data['periods'] = {}
             self.util.json_save(filepath=datafile, adict=data)
+        return data
 
-        # ~ # Check dictionaries
-        # ~ try:
-            # ~ documents = data['documents']
-        # ~ except KeyError:
-            # ~ documents = {}
-            # ~ data['documents'] = documents
+    def _on_set_periodicity_response(self, dialog, response, dropdown):
+        if response == 'apply':
+            selected_documents = self.workspace.get_selected_items()
 
-        # ~ try:
-            # ~ periods = data['periods']
-        # ~ except KeyError:
-            # ~ periods = []
-            # ~ data['periods'] = periods
+            # Unset documents periodicity first
+            self._unset_periodicity_real(selected_documents)
 
-        documents = data['documents']
-        periods = data['periods']
-        period = dropdown.get_selected_item()
-        pid = period.id
-        for document in self.workspace.get_selected_items():
-            docid = document.id
-            documents[docid] = pid
-            if pid in periods:
-                s = set(periods[pid])
-                s.add(docid)
-                periods[pid] = list(s)
-            else:
-                periods[pid] = [docid]
-        data['documents'] = documents
-        data['periods'] = periods
-        self.util.json_save(datafile, data)
+            # Set new periodicity
+            data = self._get_data()
+            documents = data['documents']
+            periods = data['periods']
+            period = dropdown.get_selected_item()
+            pid = period.id
+            for document in selected_documents:
+                docid = document.id
+                documents[docid] = pid
+                if pid in periods:
+                    s = set(periods[pid])
+                    s.add(docid)
+                    periods[pid] = list(s)
+                else:
+                    periods[pid] = [docid]
+
+            # Save data
+            data['documents'] = documents
+            data['periods'] = periods
+            datafile = self.plugin.get_data_file()
+            self.util.json_save(datafile, data)
+            self.log.debug(f"Periodicity {period.title} set to {len(selected_documents)} documents")
+            self.workspace.update()
+            self.srvdlg.show_info(title='Periodicity management', body=f"Periodicity {period.title} set to {len(selected_documents)} documents", parent=dialog.get_root())
 
     def _unset_periodicity(self, *args):
-        for document in self.workspace.get_selected_items():
-            # do something
-            pass
+        selected_documents = self.workspace.get_selected_items()
+        self._unset_periodicity_real(selected_documents)
+        self.srvdlg.show_info(title='Periodicity management', body='Removed periodicity for selected documents', parent=self.workspace.get_root())
 
-        self.log.debug("Plugin Periods activated")
+    def _unset_periodicity_real(self, selected_documents):
+        data = self._get_data()
+        documents = data['documents']
+        periods = data['periods']
+
+        for document in selected_documents:
+            doc_id = document.id
+            if doc_id in data.get("documents", {}):
+                # Get the period before deleting the document
+                period = data["documents"][doc_id]
+                del data["documents"][doc_id]
+
+                # Remove from periods if the period exists
+                if period in data.get("periods", {}):
+                    # Remove all occurrences of the doc_id from the period's list
+                    period_list = data["periods"][period]
+                    while doc_id in period_list:
+                        period_list.remove(doc_id)
+
+            # Additionally, check all other periods in case the document exists there
+            # even if it wasn't in the documents dictionary (as per the example with 1Y)
+            for period, doc_list in data.get("periods", {}).items():
+                while doc_id in doc_list:
+                    doc_list.remove(doc_id)
+
+        # Save data
+        datafile = self.plugin.get_data_file()
+        self.util.json_save(datafile, data)
+        self.log.debug(f"Periodicity for {len(selected_documents)} documents removed")
+        self.workspace.update()
 
     def show_settings(self, widget):
         self.log.error(self.config.config_for)
