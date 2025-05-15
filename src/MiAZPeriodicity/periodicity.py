@@ -27,29 +27,40 @@ from MiAZ.frontend.desktop.widgets.columnview import MiAZColumnViewSelector
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
 
+default_available_data = {
+                '1D': 'Daily',
+                '1W': 'Weekly',
+                '1M': 'Monthly',
+                '1Y': 'Yearly'
+}
+
 class Periodicity(MiAZModel):
     __gtype_name__ = 'Periodicity'
     __title__ = _('Periodicity')
-    __title_plural__ = _('Periods')
+    __title_plural__ = _('Periodicity')
     __config_name__ = 'periodicity'
     __config_name_available__ = 'periodicity'
     __config_name_used__ = 'periodicity'
+
+item_type = Periodicity
+i_title = item_type.__title__
+i_confname = item_type.__config_name__
 
 
 class MiAZConfigPeriodicity(MiAZConfig):
     def __init__(self, app, plugin):
         self.plugin = plugin
         config_dir = self.plugin.get_config_dir()
-        config_file_setup = self.plugin.get_config_file_setup()
+        config_file_setup = self.plugin.get_config_file_default_available_data()
         ENV = app.get_env()
         super().__init__(
             app=app,
-            log=MiAZLog('MiAZ.Config.Periods'),
-            config_for='periodicity',
-            used=os.path.join(config_dir, 'periodicity-used.json'),
-            available=os.path.join(config_dir, 'periodicity-available.json'),
+            log=MiAZLog(f'MiAZ.Config.{i_title}'),
+            config_for=f'{i_confname}',
+            used=os.path.join(config_dir, f'{i_confname}-used.json'),
+            available=os.path.join(config_dir, f'{i_confname}-available.json'),
             default=config_file_setup,
-            model=Periodicity,
+            model=item_type,
             must_copy=False
         )
 
@@ -59,11 +70,10 @@ class MiAZColumnViewPeriodicity(MiAZColumnViewSelector):
     __gtype_name__ = 'MiAZColumnViewPeriodicity'
 
     def __init__(self, app, available=True):
-        item_type=Periodicity
         super().__init__(app, item_type)
         self.cv.append_column(self.column_id)
         self.column_id.set_visible(False)
-        self.column_title.set_title(_('Period Id'))
+        self.column_title.set_title(_(f'{i_title} Id'))
         self.cv.append_column(self.column_title)
         if available:
             title = _(f"{item_type.__title_plural__} available")
@@ -71,12 +81,6 @@ class MiAZColumnViewPeriodicity(MiAZColumnViewSelector):
             title = _(f"{item_type.__title_plural__} enabled")
         self.column_title.set_title(title)
 
-periodicity = {
-                '1D': 'Daily',
-                '1W': 'Weekly',
-                '1M': 'Monthly',
-                '1Y': 'Yearly'
-            }
 
 class MiAZPeriodicityView(MiAZConfigView):
     """Manage purposes from Repo Settings"""
@@ -92,7 +96,7 @@ class MiAZPeriodicityView(MiAZConfigView):
         if self.config_dir is None:
             raise
         super(MiAZConfigView, self).__init__(app, edit=True)
-        super().__init__(app, config_name='Periodicity', custom_config=config)
+        super().__init__(app, config_name=f'{i_confname}', custom_config=config)
 
     def _setup_view_finish(self):
         # Setup Available and Used Columns Views
@@ -141,58 +145,67 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
             # Get submenu for this plugin (subcategory)
             submenu = self.plugin.install_menu_entry()
 
-            # Install periodicity submenu
-            periodicity_menu = Gio.Menu()
-            menuitem = self.factory.create_menuitem('period-add', _('... set periodicity'), self._set_periodicity, None, [])
-            periodicity_menu.append_item(menuitem)
-            menuitem = self.factory.create_menuitem('period-del', _('... unset periodicity'), self._unset_periodicity, None, [])
-            periodicity_menu.append_item(menuitem)
-            submenu.append_submenu("Periodicity", periodicity_menu)
+            # Install plugin submenu
+            plugin_menu = Gio.Menu()
+            menuitem = self.factory.create_menuitem(f'{i_confname}-add', _(f'... set {i_confname}'), self._set_property, None, [])
+            plugin_menu.append_item(menuitem)
+            menuitem = self.factory.create_menuitem(f'{i_confname}-del', _(f'... unset {i_confname}'), self._unset_property, None, [])
+            plugin_menu.append_item(menuitem)
+            submenu.append_submenu(f"{i_title}", plugin_menu)
+
+            ## Set factory data
+            filepath = self.plugin.get_config_file_default_available_data()
+            self.util.json_save(filepath, default_available_data)
 
             # Get config
             self.config = MiAZConfigPeriodicity(self.app, self.plugin)
 
-            ## Set factory data
-            data_file = self.plugin.get_config_file_setup()
-            self.util.json_save(data_file, periodicity)
-
-            # Periodicity dropdown for custom filters
-            self.dd_period = self.factory.create_dropdown_generic(item_type=Periodicity, ellipsize=False, enable_search=True)
-            self.dd_period.connect("notify::selected-item", self.workspace.update)
-            self.config.connect('used-updated', self.actions.dropdown_populate, self.dd_period, Periodicity, False, False)
-            self.actions.dropdown_populate(self.config, self.dd_period, Periodicity, any_value=True)
-            self.dd_period.set_hexpand(True)
-            boxDropdown = self.factory.create_box_filter('Period', self.dd_period)
+            # Dropdown for custom filters
+            plugin_name = self.plugin.get_name()
+            dropdown = self.factory.create_dropdown_generic(item_type=item_type, ellipsize=True, enable_search=True)
+            self.app.add_widget(f'plugin-{plugin_name}-dropdown', dropdown)
+            dropdown.connect("notify::selected-item", self.workspace.update)
+            self.config.connect('used-updated', self.actions.dropdown_populate, dropdown, item_type, True, True)
+            self.actions.dropdown_populate(self.config, dropdown, item_type, True, True)
+            dropdown.set_hexpand(True)
+            boxDropdown = self.factory.create_box_filter(f'{i_title}', dropdown)
             row = self.app.get_widget('sidebar-box-custom-filters')
             row.append(boxDropdown)
 
-            self.workspace.register_filter_view('periods', self._do_filter_view_period)
+            self.workspace.register_filter_view(f'{i_title}', self._do_filter_view)
 
-    def _do_filter_view_period(self, item, filter_list_model):
-        match = False
-        docid = item.id
-        pid = self.dd_period.get_selected_item().id
-        datafile = self.plugin.get_data_file()
-        data = self.util.json_load(datafile)
+    def _do_filter_view(self, item, filter_list_model):
+        display = False         # set display to false
+        docid = item.id         # Document to display (or not)
+        plugin_name = self.plugin.get_name()
+        dropdown = self.app.get_widget(f'plugin-{plugin_name}-dropdown')
+        selected_item = dropdown.get_selected_item()    # Property key selected to filter
+        if selected_item is None:
+            return True
+
+        pid = selected_item.id
+        data = self._get_data()
 
         if pid == 'Any':
-            match = True
+            display = True
+        elif pid == 'None':
+            display = False
         else:
             try:
-                docs = data['periods'][pid]
+                docs = data[f'{i_confname}'][pid]
                 if docid in docs:
-                    match = True
-            except KeyError:
-                match = False
-        return match
+                    display = True
+            except KeyError as error:
+                display = False
+        return display
 
-    def _set_periodicity(self, *args):
+    def _set_property(self, *args):
         selected_items = self.workspace.get_selected_items()
         if len(selected_items) > 0:
-            dd_periods = self.factory.create_dropdown_generic(item_type=Periodicity, ellipsize=False, enable_search=False)
-            self.actions.dropdown_populate(self.config, dd_periods, Periodicity, any_value=True)
-            dialog = self.srvdlg.show_action(title='Manage periodicity', widget=dd_periods)
-            dialog.connect('response', self._on_set_periodicity_response, dd_periods)
+            dropdown = self.factory.create_dropdown_generic(item_type=item_type, ellipsize=True, enable_search=True)
+            self.actions.dropdown_populate(self.config, dropdown, item_type, False, False)
+            dialog = self.srvdlg.show_action(title=f'Manage {i_confname}', widget=dropdown)
+            dialog.connect('response', self._on_set_property_response, dropdown)
             dialog.present(self.workspace.get_root())
         else:
             parent = self.app.get_widget('window')
@@ -206,81 +219,81 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
             self.log.debug(f"Creating new data file in {datafile}")
             data = {}
             data['documents'] = {}
-            data['periods'] = {}
+            data[f'{i_confname}'] = {}
             self.util.json_save(filepath=datafile, adict=data)
         return data
 
-    def _on_set_periodicity_response(self, dialog, response, dropdown):
+    def _on_set_property_response(self, dialog, response, dropdown):
         if response == 'apply':
             selected_documents = self.workspace.get_selected_items()
 
-            # Unset documents periodicity first
-            self._unset_periodicity_real(selected_documents)
+            # Unset documents property first
+            self._unset_property_real(selected_documents)
 
-            # Set new periodicity
+            # Set property to selected documents
             data = self._get_data()
             documents = data['documents']
-            periods = data['periods']
-            period = dropdown.get_selected_item()
-            pid = period.id
+            config_data = data[f'{i_confname}']
+            config_item = dropdown.get_selected_item()
+            pid = config_item.id
             for document in selected_documents:
                 docid = document.id
                 documents[docid] = pid
-                if pid in periods:
-                    s = set(periods[pid])
+                if pid in config_data:
+                    s = set(config_data[pid])
                     s.add(docid)
-                    periods[pid] = list(s)
+                    config_data[pid] = list(s)
                 else:
-                    periods[pid] = [docid]
+                    config_data[pid] = [docid]
 
             # Save data
             data['documents'] = documents
-            data['periods'] = periods
+            data[f'{i_confname}'] = config_data
             datafile = self.plugin.get_data_file()
             self.util.json_save(datafile, data)
-            self.log.debug(f"Periodicity {period.title} set to {len(selected_documents)} documents")
+            self.log.debug(f"{i_title} {config_item.title} set to {len(selected_documents)} documents")
             self.workspace.update()
-            self.srvdlg.show_info(title='Periodicity management', body=f"Periodicity {period.title} set to {len(selected_documents)} documents", parent=dialog.get_root())
+            self.srvdlg.show_info(title=f'{i_title} management', body=f"{i_title} {config_item.title} set to {len(selected_documents)} documents", parent=dialog.get_root())
 
-    def _unset_periodicity(self, *args):
+    def _unset_property(self, *args):
         selected_documents = self.workspace.get_selected_items()
-        self._unset_periodicity_real(selected_documents)
-        self.srvdlg.show_info(title='Periodicity management', body='Removed periodicity for selected documents', parent=self.workspace.get_root())
+        self._unset_property_real(selected_documents)
+        self.srvdlg.show_info(title=f'{i_title} management', body=f'Removed {i_confname} for selected documents', parent=self.workspace.get_root())
 
-    def _unset_periodicity_real(self, selected_documents):
+    def _unset_property_real(self, selected_documents):
         data = self._get_data()
         documents = data['documents']
-        periods = data['periods']
+        config_data = data[f'{i_confname}']
 
         for document in selected_documents:
             doc_id = document.id
             if doc_id in data.get("documents", {}):
-                # Get the period before deleting the document
-                period = data["documents"][doc_id]
+                # Get the config key before deleting the document
+                pid = data["documents"][doc_id]
                 del data["documents"][doc_id]
 
-                # Remove from periods if the period exists
-                if period in data.get("periods", {}):
-                    # Remove all occurrences of the doc_id from the period's list
-                    period_list = data["periods"][period]
-                    while doc_id in period_list:
-                        period_list.remove(doc_id)
+                # Remove from config_data if the config key exists
+                if pid in data.get(f'{i_confname}', {}):
+                    # Remove all occurrences of the doc_id from the config_data list
+                    doc_list = data[f'{i_confname}'][pid]
+                    while doc_id in doc_list:
+                        doc_list.remove(doc_id)
 
-            # Additionally, check all other periods in case the document exists there
-            # even if it wasn't in the documents dictionary (as per the example with 1Y)
-            for period, doc_list in data.get("periods", {}).items():
+            # Additionally, check all other keys in case the document exists there
+            # even if it wasn't in the documents dictionary
+            for pid, doc_list in data.get(f'{i_confname}', {}).items():
                 while doc_id in doc_list:
                     doc_list.remove(doc_id)
 
         # Save data
         datafile = self.plugin.get_data_file()
         self.util.json_save(datafile, data)
-        self.log.debug(f"Periodicity for {len(selected_documents)} documents removed")
+        self.log.debug(f"{i_title} for {len(selected_documents)} documents removed")
         self.workspace.update()
 
     def show_settings(self, widget):
-        self.log.error(self.config.config_for)
         config_dir = self.plugin.get_config_dir()
         configview = MiAZPeriodicityView(self.app, plugin=self.plugin, config=self.config)
-        dialog = self.srvdlg.show_noop(title='Manage periodicity', widget=configview, width=800, height=600)
+        configview.update_views()
+        dialog = self.srvdlg.show_noop(title=f'Manage {i_confname}', widget=configview, width=800, height=600)
         dialog.present(widget.get_root())
