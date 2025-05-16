@@ -28,10 +28,19 @@ from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
 
 default_available_data = {
-                '1D': 'Daily',
-                '1W': 'Weekly',
-                '1M': 'Monthly',
-                '1Y': 'Yearly'
+    '1D': 'Daily',
+    '1W': 'Weekly',
+    '1M': 'Monthly',
+    '1Q': 'Quarterly',
+    '1Y': 'Yearly',
+    '1H': 'Hourly',
+    '1T': 'Minutely',
+    '1S': 'Secondly',
+    'BD': 'Business Day',
+    'WE': 'Weekend',
+    '2W': 'Bi-Weekly',
+    '2M': 'Bi-Monthly',
+    '6M': 'Semi-Annual'
 }
 
 class Periodicity(MiAZModel):
@@ -108,8 +117,8 @@ class MiAZPeriodicityView(MiAZConfigView):
         self.update_views()
 
 
-class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
-    __gtype_name__ = 'MiAZPeriods'
+class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
+    __gtype_name__ = 'MiAZPeriodicityPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
     file = __file__.replace('.py', '.plugin')
@@ -136,6 +145,8 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
         # Connect signals to startup
         self.workspace = self.app.get_widget('workspace')
         self.workspace.connect('workspace-loaded', self.startup)
+        self.util.connect('filename-renamed', self._on_filename_renamed)
+        self.util.connect('filename-deleted', self._on_filename_deleted)
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
@@ -176,7 +187,7 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
 
     def _do_filter_view(self, item, filter_list_model):
         display = False         # set display to false
-        docid = item.id         # Document to display (or not)
+        doc_id = item.id         # Document to display (or not)
         plugin_name = self.plugin.get_name()
         dropdown = self.app.get_widget(f'plugin-{plugin_name}-dropdown')
         selected_item = dropdown.get_selected_item()    # Property key selected to filter
@@ -193,7 +204,7 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
         else:
             try:
                 docs = data[f'{i_confname}'][pid]
-                if docid in docs:
+                if doc_id in docs:
                     display = True
             except KeyError as error:
                 display = False
@@ -225,48 +236,62 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
 
     def _on_set_property_response(self, dialog, response, dropdown):
         if response == 'apply':
-            selected_documents = self.workspace.get_selected_items()
+            selected_documents = []
+            for item in self.workspace.get_selected_items():
+                selected_documents.append(item.id)
+            config_item = dropdown.get_selected_item()
 
             # Unset documents property first
             self._unset_property_real(selected_documents)
 
             # Set property to selected documents
-            data = self._get_data()
-            documents = data['documents']
-            config_data = data[f'{i_confname}']
-            config_item = dropdown.get_selected_item()
-            pid = config_item.id
-            for document in selected_documents:
-                docid = document.id
-                documents[docid] = pid
-                if pid in config_data:
-                    s = set(config_data[pid])
-                    s.add(docid)
-                    config_data[pid] = list(s)
-                else:
-                    config_data[pid] = [docid]
+            change = self._set_property_real(selected_documents, config_item.id)
+            if change:
+                self.workspace.update()
+                self.log.debug(f"{i_title} {config_item.title} set to {len(selected_documents)} documents")
+                self.srvdlg.show_info(title=f'{i_title} management', body=f"{i_title} {config_item.title} set to {len(selected_documents)} documents", parent=dialog.get_root())
 
-            # Save data
-            data['documents'] = documents
-            data[f'{i_confname}'] = config_data
-            datafile = self.plugin.get_data_file()
-            self.util.json_save(datafile, data)
-            self.log.debug(f"{i_title} {config_item.title} set to {len(selected_documents)} documents")
-            self.workspace.update()
-            self.srvdlg.show_info(title=f'{i_title} management', body=f"{i_title} {config_item.title} set to {len(selected_documents)} documents", parent=dialog.get_root())
-
-    def _unset_property(self, *args):
-        selected_documents = self.workspace.get_selected_items()
-        self._unset_property_real(selected_documents)
-        self.srvdlg.show_info(title=f'{i_title} management', body=f'Removed {i_confname} for selected documents', parent=self.workspace.get_root())
-
-    def _unset_property_real(self, selected_documents):
+    def _set_property_real(self, selected_documents, pid):
+        change = False
         data = self._get_data()
         documents = data['documents']
         config_data = data[f'{i_confname}']
 
-        for document in selected_documents:
-            doc_id = document.id
+        for doc_id in selected_documents:
+            self.log.debug(f"Request to set {i_confname} '{pid}' for document '{doc_id}'")
+            documents[doc_id] = pid
+            if pid in config_data:
+                s = set(config_data[pid])
+                s.add(doc_id)
+                config_data[pid] = list(s)
+            else:
+                config_data[pid] = [doc_id]
+            change = True
+            self.log.debug(f"{i_title} for document '{doc_id}' set to '{pid}'")
+
+        # Save data
+        if change:
+            data['documents'] = documents
+            data[f'{i_confname}'] = config_data
+            datafile = self.plugin.get_data_file()
+            self.util.json_save(datafile, data)
+        return change
+
+    def _unset_property(self, *args):
+        selected_documents = []
+        for item in self.workspace.get_selected_items():
+            selected_documents.append(item.id)
+        self._unset_property_real(selected_documents)
+        self.srvdlg.show_info(title=f'{i_title} management', body=f'Removed {i_confname} for selected documents', parent=self.workspace.get_root())
+
+    def _unset_property_real(self, selected_documents):
+        change = False
+        data = self._get_data()
+        documents = data['documents']
+        config_data = data[f'{i_confname}']
+
+        for doc_id in selected_documents:
+            self.log.debug(f"Request to unset any {i_confname} for document '{doc_id}'")
             if doc_id in data.get("documents", {}):
                 # Get the config key before deleting the document
                 pid = data["documents"][doc_id]
@@ -278,18 +303,25 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
                     doc_list = data[f'{i_confname}'][pid]
                     while doc_id in doc_list:
                         doc_list.remove(doc_id)
+                change = True
+                self.log.debug(f"{i_title} '{pid}' unset for document '{doc_id}'")
 
             # Additionally, check all other keys in case the document exists there
             # even if it wasn't in the documents dictionary
             for pid, doc_list in data.get(f'{i_confname}', {}).items():
                 while doc_id in doc_list:
                     doc_list.remove(doc_id)
+                    change = True
 
         # Save data
-        datafile = self.plugin.get_data_file()
-        self.util.json_save(datafile, data)
-        self.log.debug(f"{i_title} for {len(selected_documents)} documents removed")
-        self.workspace.update()
+        if change:
+            datafile = self.plugin.get_data_file()
+            self.util.json_save(datafile, data)
+            self.log.debug(f"{i_title} for {len(selected_documents)} documents removed")
+            self.workspace.update()
+        else:
+            self.log.debug(f"No changes detected for {i_confname} for {len(selected_documents)}")
+        return change
 
     def show_settings(self, widget):
         config_dir = self.plugin.get_config_dir()
@@ -297,3 +329,30 @@ class MiAZPeriodsPlugin(GObject.GObject, Peas.Activatable):
         configview.update_views()
         dialog = self.srvdlg.show_noop(title=f'Manage {i_confname}', widget=configview, width=800, height=600)
         dialog.present(widget.get_root())
+
+    def _get_pid(self, doc_id):
+        """Return the property key associated to a document
+        """
+        data = self._get_data()
+        documents = data['documents']
+        try:
+            return documents[doc_id]
+        except KeyError:
+            return None
+
+    def _on_filename_renamed(self, util, fp_source, fp_target):
+        source = os.path.basename(fp_source)
+        target = os.path.basename(fp_target)
+        pid = self._get_pid(source)
+        if pid is not None:
+            self._unset_property_real([source])
+            self._set_property_real([target], pid)
+            self.log.debug(f"{i_title} {pid} unset for '{source}' and set to '{target}'")
+
+    def _on_filename_deleted(self, util, fp_source):
+        source = os.path.basename(fp_source)
+        pid = self._get_pid(source)
+        if pid is not None:
+            self._unset_property_real([source])
+            self.log.debug(f"{i_title} {pid} unset for '{source}'")
+
