@@ -103,19 +103,6 @@
         "Category": "Customisation and Personalisation",
         "Subcategory": "User Interface"
     },
-    "MiAZSidebarTB": {
-        "Module": "sidebartgb",
-        "Name": "MiAZSidebarTB",
-        "Loader": "Python3",
-        "Description": "Toggle sidebar",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.8",
-        "Category": "Customisation and Personalisation",
-        "Subcategory": "User Interface"
-    },
     "MiAZTimelineJS": {
         "Module": "timelinejs",
         "Name": "MiAZTimelineJS",
@@ -141,5 +128,18 @@
         "Version": "0.2",
         "Category": "Content Organisation",
         "Subcategory": "Tagging and Classification"
+    },
+    "MiAZSidebarTB": {
+        "Module": "sidebartgb",
+        "Name": "MiAZSidebarTB",
+        "Loader": "Python3",
+        "Description": "Toggle sidebar",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.8",
+        "Category": "Customisation and Personalisation",
+        "Subcategory": "User Interface"
     }
 }
