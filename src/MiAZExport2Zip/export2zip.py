@@ -5,7 +5,7 @@
 # File: export2zip.py
 # Author: Tomás Vírseda
 # License: GPL v3
-# Description: Plugin for exporting items to ZIP
+# Description: Plugin for exporting documents to ZIP
 """
 
 import os
@@ -19,7 +19,6 @@ from gi.repository import Peas
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 from MiAZ.backend.models import Country, Date, Group
 from MiAZ.backend.models import Purpose, SentBy, SentTo
-from MiAZ.frontend.desktop.services.dialogs import MiAZFileChooserDialog
 
 Field = {}
 Field[Date] = 0
@@ -49,9 +48,16 @@ class Export2Zip(GObject.GObject, Peas.Activatable):
         ## Get logger
         self.log = self.plugin.get_logger()
 
-        # Connect signals to startup
-        workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.startup)
+        # Connect startup signals
+        self.workspace = self.app.get_widget('workspace')
+        self.workspace.connect('workspace-loaded', self.startup)
+
+        # Get services
+        self.actions = self.app.get_service('actions')
+        self.factory = self.app.get_service('factory')
+        self.repository = self.app.get_service('repo')
+        self.util = self.app.get_service('util')
+        self.srvdlg = self.app.get_service('dialogs')
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
@@ -66,54 +72,41 @@ class Export2Zip(GObject.GObject, Peas.Activatable):
 
 
     def export(self, *args):
-        ENV = self.app.get_env()
-        actions = self.app.get_service('actions')
-        factory = self.app.get_service('factory')
-        repository = self.app.get_service('repo')
-        util = self.app.get_service('util')
-        workspace = self.app.get_widget('workspace')
-        items = workspace.get_selected_items()
-        if actions.stop_if_no_items(items):
+        self.items = self.workspace.get_selected_items()
+        if self.actions.stop_if_no_items(self.items):
             return
+        self.target_dir = None
+        self.factory.create_filechooser_for_directories(self._on_select_folder_response)
 
-        def filechooser_response(dialog, response, patterns):
+    def _on_select_folder_response(self, dialog, result):
+        try:
+            folder = dialog.select_folder_finish(result)
+            self.target_dir = folder.get_path()
+            target_dir_valid = os.path.exists(self.target_dir)
+            if self.target_dir is not None and target_dir_valid:
+                ENV = self.app.get_env()
+                dir_zip = self.util.get_temp_dir()
+                self.util.directory_create(dir_zip)
+                for item in self.items:
+                    source = os.path.join(self.repository.docs, item.id)
+                    target = dir_zip
+                    self.util.filename_copy(source, target)
+                basename = os.path.basename(dir_zip)
+                zip_file = f"{basename}.zip"
+                zip_target = os.path.join(ENV['LPATH']['TMP'], zip_file)
+                source = zip_target
+                target = os.path.join(self.target_dir, zip_file)
+                self.util.zip(target, dir_zip)
+                self.util.filename_rename(source, target)
+                shutil.rmtree(dir_zip)
+                self.util.directory_open(self.target_dir)
 
-            if response == 'apply':
-                content_area = dialog.get_extra_child()
-                filechooser = self.app.get_widget('plugin-export2zip-filechooser')
-                gfile = filechooser.get_file()
-                dirpath = gfile.get_path()
-                if gfile is not None:
-                    dir_zip = util.get_temp_dir()
-                    util.directory_create(dir_zip)
-                    for item in items:
-                        source = os.path.join(repository.docs, item.id)
-                        target = dir_zip
-                        util.filename_copy(source, target)
-                    basename = os.path.basename(dir_zip)
-                    zip_file = f"{basename}.zip"
-                    zip_target = os.path.join(ENV['LPATH']['TMP'], zip_file)
-                    source = zip_target
-                    target = os.path.join(dirpath, zip_file)
-                    util.zip(target, dir_zip)
-                    util.filename_rename(source, target)
-                    shutil.rmtree(dir_zip)
-                    util.directory_open(dirpath)
+                body = f"<big>Check your default file browser</big>"
+                window = self.workspace.get_root()
+                body=''
+                self.srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present(window)
 
-                    srvdlg = self.app.get_service('dialogs')
-                    body = f"<big>Check your default file browser</big>"
-                    workspace = self.app.get_widget('workspace')
-                    window = workspace.get_root()
-                    body=''
-                    srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present(window)
-
-
-        window = self.app.get_widget('window')
-        clsdlg = MiAZFileChooserDialog(self.app)
-        filechooser_dialog = clsdlg.create(
-                    title=_('Choose a directory to export the Zip archive'),
-                    target = 'FOLDER',
-                    callback = filechooser_response)
-        self.app.add_widget('plugin-export2zip-filechooser', clsdlg.get_filechooser_widget())
-        filechooser_dialog.present(window)
+        except Exception as error:
+            self.srvdlg.show_error(title='Export error', body=error)
+            self.log.error(f"Error selecting files: {error}")
 

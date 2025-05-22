@@ -2,7 +2,7 @@
 Module=export2text
 Name=MiAZExport2Text
 Loader=Python3
-Description=Export selected documents to plain text
+Description=Export to text editor
 Authors=Tomás Vírseda <tomasvirseda@gmail.com>
 Copyright=Copyright © 2025 Tomás Vírseda
 Website=http://github.com/t00m/MiAZ

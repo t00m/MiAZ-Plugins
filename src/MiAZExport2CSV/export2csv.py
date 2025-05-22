@@ -75,5 +75,5 @@ class Export2CSV(GObject.GObject, Peas.Activatable):
             csvwriter.writerow(fields)
             csvwriter.writerows(rows)
         util.filename_display(filepath)
-        body = f"<big>Check your default spreadsheet application</big>"
+        body = f"Check your default spreadsheet application"
         srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present(window)

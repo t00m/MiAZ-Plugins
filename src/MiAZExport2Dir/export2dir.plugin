@@ -2,7 +2,7 @@
 Module=export2dir
 Name=MiAZExport2Dir
 Loader=Python3
-Description=Export selected documents to directory
+Description=Export to directory
 Authors=Tomás Vírseda <tomasvirseda@gmail.com>
 Copyright=Copyright © 2025 Tomás Vírseda
 Website=http://github.com/t00m/MiAZ

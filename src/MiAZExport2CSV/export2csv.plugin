@@ -2,7 +2,7 @@
 Module=export2csv
 Name=MiAZExport2CSV
 Loader=Python3
-Description=Export selected documents to CSV
+Description=Export to CSV
 Authors=Tomás Vírseda <tomasvirseda@gmail.com>
 Copyright=Copyright © 2025 Tomás Vírseda
 Website=http://github.com/t00m/MiAZ

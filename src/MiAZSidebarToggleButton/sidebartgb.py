@@ -21,8 +21,8 @@ from gi.repository import Peas
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
 
-class MiAZSidebarToggleButtonPlugin(GObject.GObject, Peas.Activatable):
-    __gtype_name__ = 'MiAZSidebarToggleButtonPlugin'
+class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
+    __gtype_name__ = 'MiAZSidebarTBPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
     file = __file__.replace('.py', '.plugin')

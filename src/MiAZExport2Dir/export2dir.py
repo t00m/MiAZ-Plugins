@@ -12,6 +12,7 @@ import os
 from datetime import datetime
 from gettext import gettext as _
 
+from gi.repository import Adw
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import Peas
@@ -19,7 +20,6 @@ from gi.repository import Peas
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 from MiAZ.backend.models import Country, Date, Group
 from MiAZ.backend.models import Purpose, SentBy, SentTo
-from MiAZ.frontend.desktop.services.dialogs import MiAZFileChooserDialog
 
 Field = {}
 Field[Date] = 0
@@ -29,6 +29,16 @@ Field[SentBy] = 3
 Field[Purpose] = 4
 Field[SentTo] = 6
 
+Patterns = {
+    'Y': _('Year'),
+    'm': _('Month'),
+    'd': _('Day'),
+    'C': _('Country'),
+    'G': _('Group'),
+    'P': _('Purpose'),
+    'B': _('Sent by'),
+    'T': _('Sent to'),
+}
 
 class Export2Dir(GObject.GObject, Peas.Activatable):
     """Export selected documents to a directory"""
@@ -52,8 +62,15 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         self.log = self.plugin.get_logger()
 
         # Connect startup signals
-        workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.startup)
+        self.workspace = self.app.get_widget('workspace')
+        self.workspace.connect('workspace-loaded', self.startup)
+
+        # Get services
+        self.actions = self.app.get_service('actions')
+        self.factory = self.app.get_service('factory')
+        self.repository = self.app.get_service('repo')
+        self.util = self.app.get_service('util')
+        self.srvdlg = self.app.get_service('dialogs')
 
     def do_deactivate(self):
         print("do_deactivate")
@@ -67,17 +84,73 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
             self.plugin.install_menu_entry(menuitem)
 
     def export(self, *args):
-        actions = self.app.get_service('actions')
-        factory = self.app.get_service('factory')
-        repository = self.app.get_service('repo')
-        util = self.app.get_service('util')
-        workspace = self.app.get_widget('workspace')
-        items = workspace.get_selected_items()
-        if actions.stop_if_no_items(items):
+        self.items = self.workspace.get_selected_items()
+        if self.actions.stop_if_no_items(self.items):
             return
+        self.target_dir = None
+        # Options for the dialog
+        frame = Gtk.Frame()
+        listbox = Gtk.ListBox.new()
 
+        ## Pattern row
+        self.chkPattern = self.factory.create_button_check(title=_('Export with pattern'), callback=None)
+        self.chkPattern.set_valign(Gtk.Align.CENTER)
+        self.chkPattern.set_tooltip_text('Check this box to activate the pattern.\nOtherwise, all documents will be exported in the same folder.')
+        self.app.add_widget('plugin-export2dir-chkpattern', self.chkPattern)
+        self.etyPattern = self.app.add_widget('plugin-export2dir-etypattern', Gtk.Entry())
+        self.etyPattern.set_valign(Gtk.Align.CENTER)
+        self.etyPattern.set_text('CYmGP')  # /{target}/{Country}/{Year}/{month}/{Group}/{Purpose}
+        widgets = []
+        label = Gtk.Label.new (_('Each letter represent a directory:\n'))
+        widgets.append(label)
+        for key in Patterns:
+            label = Gtk.Label()
+            label.set_markup(f'<b>{key}</b> = {Patterns[key]}')
+            label.set_xalign(0.0)
+            widgets.append(label)
+        btpPattern = self.factory.create_button_popover(icon_name='io.github.t00m.MiAZ-dialog-information-symbolic', widgets=widgets)
+        btpPattern.set_valign(Gtk.Align.CENTER)
+        hbox = self.factory.create_box_horizontal()
+        hbox.append(self.chkPattern)
+        hbox.append(self.etyPattern)
+        hbox.append(btpPattern)
+        self.row_pattern = Adw.ActionRow(title=_('Select pattern'))
+        self.row_pattern.add_suffix(hbox)
+        listbox.append(self.row_pattern)
+
+        ## Target directory
+        button = Gtk.Button()
+        button.set_valign(Gtk.Align.CENTER)
+        button.set_label('Select folder')
+        button.connect('clicked', self._on_select_folder)
+        # ~ self.row_target = self.factory.create_actionrow(title='Select target folder', subtitle='No target folder set yet', suffix=button)
+        self.row_target = Adw.ActionRow(title=_('Select target folder'))
+        self.row_target.set_subtitle(_('No target folder set yet'))
+        self.row_target.add_suffix(button)
+        listbox.append(self.row_target)
+        frame.set_child(listbox)
+
+        # Dialog
+        parent = self.app.get_widget('window')
+        title = 'Export to directory'
+        dialog = self.srvdlg.show_action(title=title, callback=self._on_dialog_response, widget=frame, width=800)
+        dialog.present(parent)
+
+    def _on_select_folder(self, *args):
+        self.factory.create_filechooser_for_directories(self._on_select_folder_response)
+
+    def _on_select_folder_response(self, dialog, result):
+        try:
+            folder = dialog.select_folder_finish(result)
+            self.target_dir = folder.get_path()
+            self.row_target.set_subtitle(self.target_dir)
+        except Exception as error:
+            self.srvdlg.show_error(title='Error selecting files', body=error)
+            self.log.error(f"Error selecting files: {error}")
+
+    def _on_dialog_response(self, dialog, response, data):
         def get_pattern_paths(item):
-            fields = util.get_fields(item.id)
+            fields = self.util.get_fields(item.id)
             paths = {}
             paths['Y'] = '%04d' % datetime.strptime(fields[0], '%Y%m%d').year
             paths['m'] = "%02d" % datetime.strptime(fields[0], '%Y%m%d').month
@@ -89,81 +162,34 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
             paths['T'] = fields[Field[SentTo]]
             return paths
 
-        def filechooser_response(dialog, response, patterns):
-            if response == 'apply':
-                content_area = dialog.get_extra_child()
-                box = content_area.get_first_child()
-                filechooser = self.app.get_widget('plugin-export2dir-filechooser')
-                toggle_pattern = self.app.get_widget('plugin-export2dir-chkpattern')
-                entry = self.app.get_widget('plugin-export2dir-etypattern')
-                gfile = filechooser.get_file()
-                if gfile is not None:
-                    dirpath = gfile.get_path()
-                    if toggle_pattern.get_active():
-                        keys = [key for key in entry.get_text()]
-                        for item in items:
-                            thispath = []
-                            thispath.append(dirpath)
-                            try:
-                                paths = get_pattern_paths(item)
-                                for key in keys:
-                                    thispath.append(paths[key])
-                                target = os.path.join(*thispath)
-                                os.makedirs(target, exist_ok=True)
-                                source = os.path.join(repository.docs, item.id)
-                                util.filename_export(source, target)
-                            except ValueError as error:
-                                self.log.error(f"{os.path.basename(source)} couldn't be exported.")
-                                self.log.error("Reason: filename not compliant with MiAZ format")
-                    else:
-                        for item in items:
-                            source = os.path.join(repository.docs, item.id)
-                            target = os.path.join(dirpath, os.path.basename(item.id))
-                            util.filename_export(source, target)
-                    util.directory_open(dirpath)
-                    srvdlg = self.app.get_service('dialogs')
-                    window = workspace.get_root()
-                    body = f"<big>Check your default file browser</big>"
-                    srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present()
-
-        patterns = {
-            'Y': _('Year'),
-            'm': _('Month'),
-            'd': _('Day'),
-            'C': _('Country'),
-            'G': _('Group'),
-            'P': _('Purpose'),
-            'B': _('Sent by'),
-            'T': _('Sent to'),
-        }
-        window = self.app.get_widget('window')
-
-        clsdlg = MiAZFileChooserDialog(self.app)
-        filechooser_dialog = clsdlg.create(
-                    title=_('Choose a directory to export selected files'),
-                    target = 'FOLDER',
-                    callback = filechooser_response,
-                    data=patterns
-                    )
-        filechooser_widget = self.app.add_widget('plugin-export2dir-filechooser', clsdlg.get_filechooser_widget())
-        filechooser_dialog.get_style_context().add_class(class_name='toolbar')
-        filechooser_widget.get_style_context().add_class(class_name='frame')
-        # Export with pattern
-        contents = filechooser_dialog.get_extra_child()
-        hbox = factory.create_box_horizontal()
-        chkPattern = factory.create_button_check(title=_('Export with pattern'), callback=None)
-        self.app.add_widget('plugin-export2dir-chkpattern', chkPattern)
-        etyPattern = self.app.add_widget('plugin-export2dir-etypattern', Gtk.Entry())
-        etyPattern.set_text('CYmGP')  # /{target}/{Country}/{Year}/{month}/{Group}/{Purpose}
-        widgets = []
-        for key in patterns:
-            label = Gtk.Label()
-            label.set_markup(f'<b>{key}</b> = {patterns[key]}')
-            label.set_xalign(0.0)
-            widgets.append(label)
-        btpPattern = factory.create_button_popover(icon_name='io.github.t00m.MiAZ-dialog-information-symbolic', widgets=widgets)
-        hbox.append(chkPattern)
-        hbox.append(etyPattern)
-        hbox.append(btpPattern)
-        contents.append(hbox)
-        filechooser_dialog.present(window)
+        if response == 'apply':
+            target_dir_valid = os.path.exists(self.target_dir)
+            if self.target_dir is not None and target_dir_valid:
+                # ~ dirpath = self.target_dir
+                if self.chkPattern.get_active():
+                    keys = [key for key in self.etyPattern.get_text()]
+                    for item in self.items:
+                        thispath = []
+                        thispath.append(self.target_dir)
+                        try:
+                            paths = get_pattern_paths(item)
+                            for key in keys:
+                                thispath.append(paths[key])
+                            target = os.path.join(*thispath)
+                            os.makedirs(target, exist_ok=True)
+                            source = os.path.join(self.repository.docs, item.id)
+                            self.util.filename_export(source, target)
+                        except ValueError as error:
+                            self.log.error(f"{os.path.basename(source)} couldn't be exported.")
+                            self.log.error("Reason: filename not compliant with MiAZ format")
+                else:
+                    for item in self.items:
+                        source = os.path.join(repository.docs, item.id)
+                        target = os.path.join(self.target_dir, os.path.basename(item.id))
+                        self.util.filename_export(source, target)
+                self.util.directory_open(self.target_dir)
+                window = self.workspace.get_root()
+                body = f"<big>Check your default file browser</big>"
+                self.srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present()
+        else:
+            self.srvdlg.show_error(title=_('Action canceled'), body=_('No documents exported'))

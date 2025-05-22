@@ -2,11 +2,11 @@
 Module=export2zip
 Name=MiAZExport2Zip
 Loader=Python3
-Description=Export selected documents to a zip file
+Description=Export to ZIP
 Authors=Tomás Vírseda <tomasvirseda@gmail.com>
 Copyright=Copyright © 2025 Tomás Vírseda
 Website=http://github.com/t00m/MiAZ
 Help=http://github.com/t00m/MiAZ/README.adoc
-Version=0.6
+Version=0.7
 Category=Data Management
 Subcategory=Export

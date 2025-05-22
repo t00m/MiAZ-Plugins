@@ -72,24 +72,31 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
         # Generate timeline data
         timelinejs_data = {}
         timelinejs_data['events'] = []
+        items_error = []
         for item in items:
-            category = item.group_dsc
-            title = item.title
-            timestamp = item.date
-            url = item.title
-            human_date = util.filename_date_human(timestamp)
-            dt = util.string_to_datetime(timestamp)
-            event = {}
-            text = f"<p>Saved in Category <b>{category}</b> on {human_date}</p><p>Access to <a href='{url}' target='_top'>document</a></p>"
-            event['start_date'] = {}
-            event['start_date']['year'] = str(dt.year)
-            event['start_date']['month'] = str(dt.month)
-            event['start_date']['day'] = str(dt.day)
-            event['text'] = {}
-            event['text']['headline'] = f"{item.purpose_dsc} ({item.subtitle}) sent by {item.sentby_dsc} to {item.sentto_dsc}"
-            event['text']['text'] = text
-            event['group'] = category
-            timelinejs_data['events'].append(event)
+            try:
+                category = item.group_dsc
+                title = item.title
+                timestamp = item.date
+                url = item.title
+                human_date = util.filename_date_human(timestamp)
+                dt = util.string_to_datetime(timestamp)
+                event = {}
+                text = f"<p>Saved in Category <b>{category}</b> on {human_date}</p><p>Access to <a href='{url}' target='_top'>document</a></p>"
+                event['start_date'] = {}
+                event['start_date']['year'] = str(dt.year)
+                event['start_date']['month'] = str(dt.month)
+                event['start_date']['day'] = str(dt.day)
+                event['text'] = {}
+                event['text']['headline'] = f"{item.purpose_dsc} ({item.subtitle}) sent by {item.sentby_dsc} to {item.sentto_dsc}"
+                event['text']['text'] = text
+                event['group'] = category
+                timelinejs_data['events'].append(event)
+            except AttributeError as error:
+                items_error.append(item)
+        if len(items_error) > 0:
+            body=_(f"At least {len(items_error)} documents couldn't be processed.\nMake sure that all document fields have been correctly set. This error happens usually when you are in review mode")
+            srvdlg.show_error(title=_("Error processing documents"), body=body)
 
         webserver = self.app.get_service('webserver')
         wdir = webserver.get_directory()
