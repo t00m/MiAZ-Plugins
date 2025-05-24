@@ -56,7 +56,7 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
         self.log.info(f"Plugin loaded? {self.plugin_info.is_loaded()}")
 
     def startup(self, *args):
-        if not self.plugin.menu_item_loaded():
+        if not self.plugin.started():
             # Create menu item for plugin
             menuitem = self.plugin.get_menu_item(callback=None)
 
@@ -94,6 +94,9 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
                     n += 1
 
                 dd_repo.connect("notify::selected-item", self._on_use_repo)
+
+            # Plugin configured
+            self.plugin.set_started(started=True)
 
 
     def _on_use_repo(self, *args):

@@ -50,12 +50,15 @@ class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
         self.log.warning("Deactivation not implemented")
 
     def startup(self, *args):
-        if not self.plugin.menu_item_loaded():
+       if not self.plugin.started():
             # Create menu item for plugin
             menuitem = self.plugin.get_menu_item(callback=self.exec_scanner)
 
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)
+
+            # Plugin configured
+            self.plugin.set_started(started=True)
 
     def _search_scan_app(self):
         scanapp = None

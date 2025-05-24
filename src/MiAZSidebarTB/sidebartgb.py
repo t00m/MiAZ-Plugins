@@ -48,7 +48,7 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
         self.log.warning("Deactivation not implemented")
 
     def startup(self, *args):
-        if not self.plugin.menu_item_loaded():
+        if not self.plugin.started():
             # Create menu item for plugin
             menuitem = self.plugin.get_menu_item(callback=None)
 
@@ -79,6 +79,9 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
                 evk.connect("key-pressed", self._on_key_press)
 
                 self.log.debug("Plugin sidebartgb activated")
+
+            # Plugin configured
+            self.plugin.set_started(started=True)
 
     def toggle_sidebar(self, *args):
         """ Sidebar not visible when active = False"""

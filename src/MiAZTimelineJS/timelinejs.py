@@ -50,12 +50,15 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
         pass
 
     def startup(self, *args):
-        if not self.plugin.menu_item_loaded():
+        if not self.plugin.started():
             # Create menu item for plugin
             menuitem = self.plugin.get_menu_item(callback=self.export)
 
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)
+
+            # Plugin configured
+            self.plugin.set_started(started=True)
 
     def export(self, *args):
         actions = self.app.get_service('actions')
