@@ -152,11 +152,7 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         self.log.warning("Deactivation not implemented")
 
     def startup(self, *args):
-<<<<<<< HEAD
-        if not self.plugin.menu_item_loaded():
-=======
         if not self.plugin.started():
->>>>>>> 77fce58 (Update plugins)
             # Get submenu for this plugin (subcategory)
             submenu = self.plugin.install_menu_entry()
 
@@ -189,12 +185,9 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
 
             self.workspace.register_filter_view(f'{i_title}', self._do_filter_view)
 
-<<<<<<< HEAD
-=======
             # Plugin configured
             self.plugin.set_started(started=True)
 
->>>>>>> 77fce58 (Update plugins)
     def _do_filter_view(self, item, filter_list_model):
         display = False         # set display to false
         doc_id = item.id         # Document to display (or not)

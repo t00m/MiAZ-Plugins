@@ -83,17 +83,6 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)
 
-<<<<<<< HEAD
-    def export(self, *args):
-        self.items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items(self.items):
-            return
-        self.target_dir = None
-        # Options for the dialog
-        frame = Gtk.Frame()
-        listbox = Gtk.ListBox.new()
-
-=======
             # Plugin configured
             self.plugin.set_started(started=True)
 
@@ -106,7 +95,6 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         frame = Gtk.Frame()
         listbox = Gtk.ListBox.new()
 
->>>>>>> 77fce58 (Update plugins)
         ## Pattern row
         self.chkPattern = self.factory.create_button_check(title=_('Export with pattern'), callback=None)
         self.chkPattern.set_valign(Gtk.Align.CENTER)
