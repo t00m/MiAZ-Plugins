@@ -43,6 +43,7 @@ default_available_data = {
     '6M': 'Semi-Annual'
 }
 
+# Model
 class Periodicity(MiAZModel):
     __gtype_name__ = 'Periodicity'
     __title__ = _('Periodicity')
@@ -56,6 +57,7 @@ i_title = item_type.__title__
 i_confname = item_type.__config_name__
 
 
+# Configuration
 class MiAZConfigPeriodicity(MiAZConfig):
     def __init__(self, app, plugin):
         self.plugin = plugin
@@ -74,6 +76,7 @@ class MiAZConfigPeriodicity(MiAZConfig):
         )
 
 
+# Columnview
 class MiAZColumnViewPeriodicity(MiAZColumnViewSelector):
     """ Custom ColumnView widget for MiAZ """
     __gtype_name__ = 'MiAZColumnViewPeriodicity'
@@ -91,6 +94,7 @@ class MiAZColumnViewPeriodicity(MiAZColumnViewSelector):
         self.column_title.set_title(title)
 
 
+# Configuration view
 class MiAZPeriodicityView(MiAZConfigView):
     """Manage purposes from Repo Settings"""
     __gtype_name__ = 'MiAZPeriodicityView'
@@ -116,7 +120,7 @@ class MiAZPeriodicityView(MiAZConfigView):
         self._add_config_menubutton(self.config.config_for)
         self.update_views()
 
-
+# Plugin
 class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZPeriodicityPlugin'
     object = GObject.Property(type=GObject.Object)
