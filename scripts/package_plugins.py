@@ -3,6 +3,9 @@
 import os
 import glob
 
+print("Purgue unnecessary bits")
+os.system("scripts/delete_pycache_dirs.sh")
+
 print("Packaging plugins:")
 for plugin_dir in [os.path.basename(x) for x in glob.glob('src/*')]:
     ZIPFILE = f"{plugin_dir}.zip"
