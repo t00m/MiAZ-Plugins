@@ -206,7 +206,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             plugin_menu.append_item(menuitem)
             menuitem = self.factory.create_menuitem(f'{i_confname}-del', _(f'Unset {i_confname}'), self._unset_property, None, [])
             plugin_menu.append_item(menuitem)
-            menuitem = self.factory.create_menuitem(f'{i_confname}-mgt', _(f'Manage {i_confname}'), self.show_settings, None, [])
+            menuitem = self.factory.create_menuitem(f'{i_confname}-mgt', _(f'Manage {i_confname}'), self._manage_properties, None, [])
             plugin_menu.append_item(menuitem)
             submenu.append_submenu(f"{i_title}", plugin_menu)
 
@@ -521,7 +521,11 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
         window = self.app.get_widget('window')
         self.srvdlg.show_info(title=_('Documents per project'), widget=box, width=800, height=600, parent=window)
 
-    def show_settings(self, widget):
+    def _manage_properties(self, *args):
+        parent = self.app.get_widget('window')
+        self.show_settings(widget=parent)
+
+    def show_settings(self, widget: Gtk.Widget=None):
         config_dir = self.plugin.get_config_dir()
         configview = MiAZProjectsView(self.app, plugin=self.plugin, config=self.config)
         configview.update_views()
