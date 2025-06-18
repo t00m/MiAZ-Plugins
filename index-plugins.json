@@ -1,74 +1,16 @@
 {
-    "MiAZSidebarTB": {
-        "Module": "sidebartgb",
-        "Name": "MiAZSidebarTB",
+    "HelloWorld": {
+        "Module": "helloworld",
+        "Name": "HelloWorld",
         "Loader": "Python3",
-        "Description": "Toggle sidebar",
+        "Description": "Hello World Example Plugin",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-<<<<<<< HEAD
         "Version": "0.5",
         "Category": "Support and Help",
         "Subcategory": "Guides and Tutorials"
-=======
-        "Version": "0.9",
-        "Category": "Customisation and Personalisation",
-        "Subcategory": "User Interface"
-    },
-    "MiAZImportFromScan": {
-        "Module": "scan",
-        "Name": "MiAZImportFromScan",
-        "Loader": "Python3",
-        "Description": "Import document from scanner",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
-        "Category": "Data Management",
-        "Subcategory": "Import"
-    },
-    "MiAZExport2Text": {
-        "Module": "export2text",
-        "Name": "MiAZExport2Text",
-        "Loader": "Python3",
-        "Description": "Export to text editor",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
-        "Category": "Data Management",
-        "Subcategory": "Export"
-    },
-    "MiAZProjectMgt": {
-        "Module": "projmgt",
-        "Name": "MiAZProjectMgt",
-        "Loader": "Python3",
-        "Description": "Project management",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6.1",
-        "Category": "Content Organisation",
-        "Subcategory": "Tagging and Classification"
-    },
-    "MiAZTimelineJS": {
-        "Module": "timelinejs",
-        "Name": "MiAZTimelineJS",
-        "Loader": "Python3",
-        "Description": "Timeline",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.4",
-        "Category": "Visualisation and diagrams",
-        "Subcategory": "Data visualisation"
->>>>>>> aaed7dc3316ef64c6c5e1e6e357453dc7a6beabc
     },
     "MiAZCopy2Clipboard": {
         "Module": "copy2clipboard",
@@ -83,7 +25,6 @@
         "Category": "Data Management",
         "Subcategory": "Export"
     },
-<<<<<<< HEAD
     "MiAZExport2CSV": {
         "Module": "export2csv",
         "Name": "MiAZExport2CSV",
@@ -97,8 +38,6 @@
         "Category": "Data Management",
         "Subcategory": "Export"
     },
-=======
->>>>>>> aaed7dc3316ef64c6c5e1e6e357453dc7a6beabc
     "MiAZExport2Dir": {
         "Module": "export2dir",
         "Name": "MiAZExport2Dir",
@@ -112,7 +51,6 @@
         "Category": "Data Management",
         "Subcategory": "Export"
     },
-<<<<<<< HEAD
     "MiAZExport2Text": {
         "Module": "export2text",
         "Name": "MiAZExport2Text",
@@ -174,12 +112,10 @@
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
+        "Version": "0.6.1",
         "Category": "Content Organisation",
         "Subcategory": "Tagging and Classification"
     },
-=======
->>>>>>> aaed7dc3316ef64c6c5e1e6e357453dc7a6beabc
     "MiAZSidebarRepoSwitcher": {
         "Module": "reposwitcher",
         "Name": "MiAZSidebarRepoSwitcher",
@@ -193,7 +129,6 @@
         "Category": "Customisation and Personalisation",
         "Subcategory": "User Interface"
     },
-<<<<<<< HEAD
     "MiAZSidebarTB": {
         "Module": "sidebartgb",
         "Name": "MiAZSidebarTB",
@@ -210,64 +145,14 @@
     "MiAZTimelineJS": {
         "Module": "timelinejs",
         "Name": "MiAZTimelineJS",
-=======
-    "MiAZExport2CSV": {
-        "Module": "export2csv",
-        "Name": "MiAZExport2CSV",
->>>>>>> aaed7dc3316ef64c6c5e1e6e357453dc7a6beabc
         "Loader": "Python3",
-        "Description": "Export to CSV",
+        "Description": "Timeline",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-<<<<<<< HEAD
         "Version": "0.4",
         "Category": "Visualisation and diagrams",
         "Subcategory": "Data visualisation"
-=======
-        "Version": "0.6",
-        "Category": "Data Management",
-        "Subcategory": "Export"
-    },
-    "HelloWorld": {
-        "Module": "helloworld",
-        "Name": "HelloWorld",
-        "Loader": "Python3",
-        "Description": "Hello World Example Plugin",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.2",
-        "Category": "Support and Help",
-        "Subcategory": "Guides and Tutorials"
-    },
-    "MiAZPeriodicity": {
-        "Module": "periodicity",
-        "Name": "MiAZPeriodicity",
-        "Loader": "Python3",
-        "Description": "Set document periodicity",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.3",
-        "Category": "Content Organisation",
-        "Subcategory": "Tagging and Classification"
-    },
-    "MiAZExport2Zip": {
-        "Module": "export2zip",
-        "Name": "MiAZExport2Zip",
-        "Loader": "Python3",
-        "Description": "Export to ZIP",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.7",
-        "Category": "Data Management",
-        "Subcategory": "Export"
->>>>>>> aaed7dc3316ef64c6c5e1e6e357453dc7a6beabc
     }
 }
