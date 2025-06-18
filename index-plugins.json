@@ -8,7 +8,7 @@
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.2",
+        "Version": "0.5",
         "Category": "Support and Help",
         "Subcategory": "Guides and Tutorials"
     },
@@ -21,7 +21,7 @@
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.2",
+        "Version": "0.6",
         "Category": "Data Management",
         "Subcategory": "Export"
     },
@@ -34,7 +34,7 @@
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
+        "Version": "0.5",
         "Category": "Data Management",
         "Subcategory": "Export"
     },
@@ -68,12 +68,12 @@
         "Module": "export2zip",
         "Name": "MiAZExport2Zip",
         "Loader": "Python3",
-        "Description": "Export to ZIP",
+        "Description": "Compress documents into a ZIP file",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.7",
+        "Version": "0.6",
         "Category": "Data Management",
         "Subcategory": "Export"
     },
@@ -90,6 +90,32 @@
         "Category": "Data Management",
         "Subcategory": "Import"
     },
+    "MiAZPeriodicity": {
+        "Module": "periodicity",
+        "Name": "MiAZPeriodicity",
+        "Loader": "Python3",
+        "Description": "Set document periodicity",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.6",
+        "Category": "Content Organisation",
+        "Subcategory": "Tagging and Classification"
+    },
+    "MiAZProjectMgt": {
+        "Module": "projmgt",
+        "Name": "MiAZProjectMgt",
+        "Loader": "Python3",
+        "Description": "Project management",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.6",
+        "Category": "Content Organisation",
+        "Subcategory": "Tagging and Classification"
+    },
     "MiAZSidebarRepoSwitcher": {
         "Module": "reposwitcher",
         "Name": "MiAZSidebarRepoSwitcher",
@@ -100,6 +126,19 @@
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
         "Version": "0.2",
+        "Category": "Customisation and Personalisation",
+        "Subcategory": "User Interface"
+    },
+    "MiAZSidebarTB": {
+        "Module": "sidebartgb",
+        "Name": "MiAZSidebarTB",
+        "Loader": "Python3",
+        "Description": "Toggle sidebar",
+        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
+        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
+        "Website": "http://github.com/t00m/MiAZ",
+        "Help": "http://github.com/t00m/MiAZ/README.adoc",
+        "Version": "0.9",
         "Category": "Customisation and Personalisation",
         "Subcategory": "User Interface"
     },
@@ -115,44 +154,5 @@
         "Version": "0.4",
         "Category": "Visualisation and diagrams",
         "Subcategory": "Data visualisation"
-    },
-    "MiAZPeriodicity": {
-        "Module": "periodicity",
-        "Name": "MiAZPeriodicity",
-        "Loader": "Python3",
-        "Description": "Set document periodicity",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.3",
-        "Category": "Content Organisation",
-        "Subcategory": "Tagging and Classification"
-    },
-    "MiAZSidebarTB": {
-        "Module": "sidebartgb",
-        "Name": "MiAZSidebarTB",
-        "Loader": "Python3",
-        "Description": "Toggle sidebar",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.9",
-        "Category": "Customisation and Personalisation",
-        "Subcategory": "User Interface"
-    },
-    "MiAZProjectMgt": {
-        "Module": "projmgt",
-        "Name": "MiAZProjectMgt",
-        "Loader": "Python3",
-        "Description": "Project management",
-        "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
-        "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
-        "Website": "http://github.com/t00m/MiAZ",
-        "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.6",
-        "Category": "Content Organisation",
-        "Subcategory": "Tagging and Classification"
     }
 }

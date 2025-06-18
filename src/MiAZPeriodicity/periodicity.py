@@ -27,21 +27,35 @@ from MiAZ.frontend.desktop.widgets.configview import MiAZConfigView
 from MiAZ.frontend.desktop.widgets.columnview import MiAZColumnViewSelector
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
+plugin_info = {
+        'Module':        'periodicity',
+        'Name':          'MiAZPeriodicity',
+        'Loader':        'Python3',
+        'Description':   _('Set document periodicity'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.6',
+        'Category':      _('Content Organisation'),
+        'Subcategory':   _('Tagging and Classification')
+    }
+
 
 default_available_data = {
-    '1D': 'Daily',
-    '1W': 'Weekly',
-    '1M': 'Monthly',
-    '1Q': 'Quarterly',
-    '1Y': 'Yearly',
-    '1H': 'Hourly',
-    '1T': 'Minutely',
-    '1S': 'Secondly',
-    'BD': 'Business Day',
-    'WE': 'Weekend',
-    '2W': 'Bi-Weekly',
-    '2M': 'Bi-Monthly',
-    '6M': 'Semi-Annual'
+    '1D': _('Daily'),
+    '1W': _('Weekly'),
+    '1M': _('Monthly'),
+    '1Q': _('Quarterly'),
+    '1Y': _('Yearly'),
+    '1H': _('Hourly'),
+    '1T': _('Minutely'),
+    '1S': _('Secondly'),
+    'BD': _('Business Day'),
+    'WE': _('Weekend'),
+    '2W': _('Bi-Weekly'),
+    '2M': _('Bi-Monthly'),
+    '6M': _('Semi-Annual')
 }
 
 # Model
@@ -126,7 +140,6 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZPeriodicityPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
-    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
         """Plugin activation"""
@@ -136,7 +149,7 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
@@ -163,13 +176,13 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
 
             # Install plugin submenu
             plugin_menu = Gio.Menu()
-            menuitem = self.factory.create_menuitem(f'{i_confname}-add', _(f'Set {i_confname}'), self._set_property, None, [])
+            menuitem = self.factory.create_menuitem(f'{i_confname}-add', _('Set {i_confname}').format(i_confname=i_confname), self._set_property, None, [])
             plugin_menu.append_item(menuitem)
-            menuitem = self.factory.create_menuitem(f'{i_confname}-del', _(f'Unset {i_confname}'), self._unset_property, None, [])
+            menuitem = self.factory.create_menuitem(f'{i_confname}-del', _('Unset {i_confname}').format(i_confname=i_confname), self._unset_property, None, [])
             plugin_menu.append_item(menuitem)
-            menuitem = self.factory.create_menuitem(f'{i_confname}-mgt', _(f'Manage {i_confname}'), self.show_settings, None, [])
+            menuitem = self.factory.create_menuitem(f'{i_confname}-mgt', _('Manage {i_confname}').format(i_confname=i_confname), self.show_settings, None, [])
             plugin_menu.append_item(menuitem)
-            submenu.append_submenu(f"{i_title}", plugin_menu)
+            submenu.append_submenu(_('{i_title}').format(i_title=i_title), plugin_menu)
 
             ## Set factory data
             filepath = self.plugin.get_config_file_default_available_data()
@@ -221,16 +234,16 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         return display
 
     def _set_property(self, *args):
+        parent = self.workspace.get_root()
         selected_items = self.workspace.get_selected_items()
         if len(selected_items) > 0:
             dropdown = self.factory.create_dropdown_generic(item_type=item_type, ellipsize=True, enable_search=True)
             self.actions.dropdown_populate(self.config, dropdown, item_type, False, False)
-            dialog = self.srvdlg.show_action(title=f'Manage {i_confname}', widget=dropdown)
+            dialog = self.srvdlg.show_action(title=_('Manage {i_confname}').format(i_confname=i_confname), widget=dropdown)
             dialog.connect('response', self._on_set_property_response, dropdown)
-            dialog.present(self.workspace.get_root())
+            dialog.present(parent)
         else:
-            parent = self.app.get_widget('window')
-            self.srvdlg.show_error(title=_('Action ignored'), body=_('<big>You must select at least one document</big>'), parent=parent)
+            self.srvdlg.show_error(title=_('Action ignored'), body=_('You must select at least one document'), parent=parent)
 
     def _get_data(self):
         datafile = self.plugin.get_data_file()
@@ -245,6 +258,7 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         return data
 
     def _on_set_property_response(self, dialog, response, dropdown):
+        parent = self.workspace.get_root()
         if response == 'apply':
             selected_documents = []
             for item in self.workspace.get_selected_items():
@@ -259,7 +273,7 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
             if change:
                 self.workspace.update()
                 self.log.debug(f"{i_title} {config_item.title} set to {len(selected_documents)} documents")
-                self.srvdlg.show_info(title=f'{i_title} management', body=f"{i_title} {config_item.title} set to {len(selected_documents)} documents", parent=dialog.get_root())
+                self.srvdlg.show_info(title=_('{i_title} management').format(i_title=i_title), body=f"{i_title} {config_item.title} set to {len(selected_documents)} documents", parent=parent)
 
     def _set_property_real(self, selected_documents, pid):
         change = False
@@ -288,11 +302,12 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         return change
 
     def _unset_property(self, *args):
+        parent = self.workspace.get_root()
         selected_documents = []
         for item in self.workspace.get_selected_items():
             selected_documents.append(item.id)
         self._unset_property_real(selected_documents)
-        self.srvdlg.show_info(title=f'{i_title} management', body=f'Removed {i_confname} for selected documents', parent=self.workspace.get_root())
+        self.srvdlg.show_info(title=f'{i_title} management', body=f'Removed {i_confname} for selected documents', parent=parent)
 
     def _unset_property_real(self, selected_documents):
         change = False
@@ -334,13 +349,24 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         return change
 
     def show_settings(self, *args):
-        if isinstance(Gtk.Widget, args[0]):
-            widget = args[0]
+        try:
+            if isinstance(Gtk.Widget, args[0]):
+                widget = args[0]
+            else:
+                widget = None
+        except TypeError:
+            widget = None
+
+        if widget is None:
+            parent = self.workspace.get_root()
+        else:
+            parent = widget.get_root()
+
         config_dir = self.plugin.get_config_dir()
         configview = MiAZPeriodicityView(self.app, plugin=self.plugin, config=self.config)
         configview.update_views()
         dialog = self.srvdlg.show_noop(title=f'Manage {i_confname}', widget=configview, width=800, height=600)
-        dialog.present(widget.get_root())
+        dialog.present(parent)
 
     def _get_pid(self, doc_id):
         """Return the property key associated to a document

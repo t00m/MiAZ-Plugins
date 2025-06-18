@@ -18,12 +18,25 @@ from gi.repository import Peas
 
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
+plugin_info = {
+        'Module':        'scan',
+        'Name':          'MiAZImportFromScan',
+        'Loader':        'Python3',
+        'Description':   _('Import document from scanner'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.6',
+        'Category':      _('Data Management'),
+        'Subcategory':   _('Import')
+    }
+
 
 class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZImportFromScanPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
-    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
         """Plugin activation"""
@@ -33,18 +46,21 @@ class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
 
+        ## Get services
+        self.factory = self.app.get_service('factory')
+
         # Connect signals to startup
-        workspace = self.app.get_widget('workspace')
+        self.workspace = self.app.get_widget('workspace')
 
         # Check any scan app and connect signal to startup
         scanapp = self._search_scan_app()
         if scanapp is not None:
-            workspace.connect('workspace-loaded', self.startup)
+            self.workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
@@ -52,7 +68,8 @@ class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
     def startup(self, *args):
        if not self.plugin.started():
             # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=self.exec_scanner)
+            mnuItemName = self.plugin.get_menu_item_name()
+            menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Scan a document'), callback=self.exec_scanner)
 
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)

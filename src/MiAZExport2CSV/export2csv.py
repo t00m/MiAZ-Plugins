@@ -17,6 +17,20 @@ from gi.repository import Peas
 
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
+plugin_info = {
+        'Module':        'export2csv',
+        'Name':          'MiAZExport2CSV',
+        'Loader':        'Python3',
+        'Description':   _('Export to CSV'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.5',
+        'Category':      _('Data Management'),
+        'Subcategory':   _('Export')
+    }
+
 
 class Export2CSV(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZExport2CSVPlugin'
@@ -32,13 +46,19 @@ class Export2CSV(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
 
-        workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.startup)
+        ## Get services
+        self.util = self.app.get_service('util')
+        self.actions = self.app.get_service('actions')
+        self.srvdlg = self.app.get_service('dialogs')
+
+        # Connect signals
+        self.workspace = self.app.get_widget('workspace')
+        self.workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
         self.log.debug("Plugin deactivation not implemented")
@@ -55,20 +75,15 @@ class Export2CSV(GObject.GObject, Peas.Activatable):
             self.plugin.set_started(started=True)
 
     def export(self, *args):
-        util = self.app.get_service('util')
-        actions = self.app.get_service('actions')
-        srvdlg = self.app.get_service('dialogs')
-        workspace = self.app.get_widget('workspace')
-        window = workspace.get_root()
         ENV = self.app.get_env()
         fields = [_('Date'), _('Country'), _('Group'), _('Send by'), _('Purpose'), _('Concept'), _('Send to'), _('Extension')]
-        items = workspace.get_selected_items()
-        if actions.stop_if_no_items(items):
+        items = self.workspace.get_selected_items()
+        if self.actions.stop_if_no_items(items):
             return
 
         rows = []
         for item in items:
-            name, ext = util.filename_details(item.id)
+            name, ext = self.util.filename_details(item.id)
             row = name.split('-')
             row.append(ext)
             rows.append(row)
@@ -77,6 +92,8 @@ class Export2CSV(GObject.GObject, Peas.Activatable):
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(fields)
             csvwriter.writerows(rows)
-        util.filename_display(filepath)
-        body = f"Check your default spreadsheet application"
-        srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present(window)
+        self.util.filename_display(filepath)
+        title=_('Export successfull')
+        body = _("Check your default spreadsheet application")
+        parent = self.workspace.get_root()
+        self.srvdlg.show_info(title=title, body=body, parent=parent)

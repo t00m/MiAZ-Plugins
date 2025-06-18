@@ -16,6 +16,20 @@ from gi.repository import Peas
 
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
+plugin_info = {
+        'Module':        'copy2clipboard',
+        'Name':          'MiAZCopy2Clipboard',
+        'Loader':        'Python3',
+        'Description':   _('Copy to clipboard'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.6',
+        'Category':      _('Data Management'),
+        'Subcategory':   _('Export')
+    }
+
 class Copy2Clipboard(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZCopy2ClipboardPlugin'
     object = GObject.Property(type=GObject.Object)
@@ -30,10 +44,17 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
+
+        ## Get services
+        self.srvdlg = self.app.get_service('dialogs')
+        self.actions = self.app.get_service('actions')
+
+        ## Get widgets
+        self.workspace = self.app.get_widget('workspace')
 
         # Connect signals to startup
         workspace = self.app.get_widget('workspace')
@@ -54,17 +75,15 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
             self.plugin.set_started(started=True)
 
     def export(self, *args):
-        srvdlg = self.app.get_service('dialogs')
-        actions = self.app.get_service('actions')
-        workspace = self.app.get_widget('workspace')
-        items = workspace.get_selected_items()
-        if actions.stop_if_no_items(items):
+        items = self.workspace.get_selected_items()
+        if self.actions.stop_if_no_items(items):
             return
 
+        title = _('{num_items} documents copied to clipboard').format(num_items=len(items))
         text = ""
         for item in items:
-            text += f"{item.id}\n"
-        workspace.get_clipboard().set(text)
+            text += _('{item}\n').format(item=item.id)
+        self.workspace.get_clipboard().set(text.strip())
         body = ''
-        window = workspace.get_root()
-        srvdlg.create(dtype='info', title=_(f"{len(items)} documents copied to clipboard"), body=body).present(window)
+        parent = self.workspace.get_root()
+        self.srvdlg.show_info(title=title, body=body, parent=parent)

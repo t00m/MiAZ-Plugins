@@ -16,6 +16,21 @@ from gi.repository import Peas
 
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
+plugin_info = {
+        'Module':        'export2text',
+        'Name':          'MiAZExport2Text',
+        'Loader':        'Python3',
+        'Description':   _('Export to text editor'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.6',
+        'Category':      _('Data Management'),
+        'Subcategory':   _('Export')
+    }
+
+
 
 class Export2Text(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZExport2TextPlugin'
@@ -31,14 +46,20 @@ class Export2Text(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
 
+        # Get services
+        self.actions = self.app.get_service('actions')
+        self.srvdlg = self.app.get_service('dialogs')
+        self.factory = self.app.get_service('factory')
+        self.util = self.app.get_service('util')
+
         # Connect signals to startup
-        workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.startup)
+        self.workspace = self.app.get_widget('workspace')
+        self.workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
@@ -46,7 +67,8 @@ class Export2Text(GObject.GObject, Peas.Activatable):
     def startup(self, *args):
         if not self.plugin.started():
             # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=self.export)
+            mnuItemName = self.plugin.get_menu_item_name()
+            menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Export to text editor'), callback=self.export)
 
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)
@@ -56,14 +78,10 @@ class Export2Text(GObject.GObject, Peas.Activatable):
 
 
     def export(self, *args):
-        actions = self.app.get_service('actions')
-        srvdlg = self.app.get_service('dialogs')
         ENV = self.app.get_env()
-        util = self.app.get_service('util')
-        workspace = self.app.get_widget('workspace')
-        window = workspace.get_root()
-        items = workspace.get_selected_items()
-        if actions.stop_if_no_items(items):
+        parent = self.workspace.get_root()
+        items = self.workspace.get_selected_items()
+        if self.actions.stop_if_no_items(items):
             return
 
         text = ""
@@ -73,6 +91,7 @@ class Export2Text(GObject.GObject, Peas.Activatable):
         with open(filepath, 'w') as temp:
             temp.write(text)
         temp.close()
-        util.filename_display(filepath)
-        body = 'Check your default text editor'
-        srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present(window)
+        self.util.filename_display(filepath)
+        title = _('Export successfull')
+        body = _('Check your default text editor')
+        self.srvdlg.show_info(title=title, body=body, parent=parent)
