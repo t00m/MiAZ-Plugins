@@ -125,7 +125,7 @@
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.2",
+        "Version": "0.5",
         "Category": "Customisation and Personalisation",
         "Subcategory": "User Interface"
     },
@@ -138,7 +138,7 @@
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.9",
+        "Version": "0.5",
         "Category": "Customisation and Personalisation",
         "Subcategory": "User Interface"
     },
@@ -146,12 +146,12 @@
         "Module": "timelinejs",
         "Name": "MiAZTimelineJS",
         "Loader": "Python3",
-        "Description": "Timeline",
+        "Description": "Create timeline",
         "Authors": "Tom\u00e1s V\u00edrseda <tomasvirseda@gmail.com>",
         "Copyright": "Copyright \u00a9 2025 Tom\u00e1s V\u00edrseda",
         "Website": "http://github.com/t00m/MiAZ",
         "Help": "http://github.com/t00m/MiAZ/README.adoc",
-        "Version": "0.4",
+        "Version": "0.5",
         "Category": "Visualisation and diagrams",
         "Subcategory": "Data visualisation"
     }

@@ -23,12 +23,24 @@ from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 from MiAZ.backend.models import Repository
 from MiAZ.backend.config import MiAZConfigRepositories
 
+plugin_info = {
+        'Module':        'reposwitcher',
+        'Name':          'MiAZSidebarRepoSwitcher',
+        'Loader':        'Python3',
+        'Description':   _('Sidebar Repository switcher'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.5',
+        'Category':      _('Customisation and Personalisation'),
+        'Subcategory':   _('User Interface')
+    }
 
 class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZSidebarRepoSwitcherPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
-    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
         """Plugin activation"""
@@ -38,16 +50,20 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
 
+        ## Get services
+        self.actions = self.app.get_service('actions')
+        self.factory = self.app.get_service('factory')
+
         # Connect signals to startup
         actions = self.app.get_service('actions')
-        workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.startup)
-        # ~ actions.connect('settings-loaded', self._on_settings_loaded)
+        self.workspace = self.app.get_widget('workspace')
+        self.workspace.connect('workspace-loaded', self.startup)
+        # ~ self.actions.connect('settings-loaded', self._on_settings_loaded)
 
     def do_deactivate(self):
         self.log.error("Plugin deactivated")
@@ -57,28 +73,22 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
 
     def startup(self, *args):
         if not self.plugin.started():
-            # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=None)
+            # No need of menu item for plugin
 
-            # Add plugin to its default (sub)category
-            self.plugin.install_menu_entry(menuitem)
-
-            actions = self.app.get_service('actions')
-            factory = self.app.get_service('factory')
             sidebar = self.app.get_widget('sidebar')
             sidebar_box_title = self.app.get_widget('sidebar-box-title')
             sidebar_title = self.app.get_widget('sidebar-title')
             dd_repo = self.app.get_widget('sidebar-repo-switcher')
             if dd_repo is None:
                 #### Configure repository dropdown
-                dd_repo = factory.create_dropdown_generic(item_type=Repository, ellipsize=False, enable_search=True)
+                dd_repo = self.factory.create_dropdown_generic(item_type=Repository, ellipsize=False, enable_search=True)
                 self.app.add_widget('sidebar-repo-switcher', dd_repo)
                 dd_repo.set_valign(Gtk.Align.CENTER)
                 dd_repo.set_hexpand(False)
                 togglebutton = dd_repo.get_first_child()
                 togglebutton.set_has_frame(False)
                 dd_repo.set_show_arrow(True)
-                actions.dropdown_populate(MiAZConfigRepositories, dd_repo, Repository, any_value=False, none_value=False)
+                self.actions.dropdown_populate(MiAZConfigRepositories, dd_repo, Repository, any_value=False, none_value=False)
                 sidebar_box_title.remove(sidebar_title)
                 sidebar_box_title.append(dd_repo)
                 sidebar_box_title.set_hexpand(False)
@@ -98,7 +108,6 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
             # Plugin configured
             self.plugin.set_started(started=True)
 
-
     def _on_use_repo(self, *args):
         """NEW METHOD: Restart Application to avoid issues with plugins
         not being able to disable their functionality
@@ -114,41 +123,4 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
         config['App'].set('current', repo.id)
 
         # Restart app
-        actions = self.app.get_service('actions')
-        actions.application_restart()
-
-    # ~ def _on_use_repo(self, *args):
-        # ~ """
-        # ~ OLD METHOD: Load repository automatically whenever is selected.
-        # ~ Once loaded, it is set as the default in the app config.
-        # ~ Some plugins functionality remain active
-        # ~ """
-        # ~ workflow = self.app.get_service('workflow')
-        # ~ dd_repo = self.app.get_widget('sidebar-repo-switcher')
-        # ~ repo = dd_repo.get_selected_item()
-        # ~ if repo is None:
-            # ~ return
-        # ~ self.log.debug(f"Repository chosen: {repo.id}")
-        # ~ config = self.app.get_config_dict()
-        # ~ config['App'].set('current', repo.id)
-        # ~ self.log.info(f"Repository '{repo.id}' set to default")
-        # ~ valid = workflow.switch_start()
-        # ~ self.log.debug(f"Repository {repo.id} loaded successfully? {valid}")
-
-    # ~ def _on_settings_loaded(self, *args):
-        # ~ group = self.app.get_widget('window-preferences-page-aspect-group-ui')
-        # ~ row = Adw.SwitchRow(title=_("Display sidebar toggle button?"), subtitle=_('Plugin Sidebar ToggleButton'))
-        # ~ row.connect('notify::active', self._on_activate_setting)
-        # ~ tgbSidebar = self.app.get_widget('workspace-togglebutton-sidebar')
-        # ~ visible = tgbSidebar.get_visible()
-        # ~ row.set_active(visible)
-        # ~ group.add(row)
-
-    # ~ def _on_activate_setting(self, row, gparam):
-        # ~ active = row.get_active()
-        # ~ togglebutton = self.app.get_widget('workspace-togglebutton-sidebar')
-        # ~ togglebutton.set_visible(active)
-
-
-
-
+        self.actions.application_restart()

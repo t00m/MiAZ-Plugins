@@ -20,12 +20,25 @@ from gi.repository import Peas
 
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
+plugin_info = {
+        'Module':        'sidebartgb',
+        'Name':          'MiAZSidebarTB',
+        'Loader':        'Python3',
+        'Description':   _('Toggle sidebar'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.5',
+        'Category':      _('Customisation and Personalisation'),
+        'Subcategory':   _('User Interface')
+    }
+
 
 class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZSidebarTBPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
-    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
         """Plugin activation"""
@@ -35,32 +48,30 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
 
+        ## Get services
+        self.factory = self.app.get_service('factory')
+
         # Connect signals to startup
-        workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.startup)
+        self.workspace = self.app.get_widget('workspace')
+        self.workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
 
     def startup(self, *args):
         if not self.plugin.started():
-            # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=None)
+            # No need of menu item for plugin
 
-            # Add plugin to its default (sub)category
-            self.plugin.install_menu_entry(menuitem)
-
-            factory = self.app.get_service('factory')
             sidebar = self.app.get_widget('sidebar')
             hdb_left = self.app.get_widget('headerbar-left-box')
             tgbSidebar = self.app.get_widget('workspace-togglebutton-sidebar')
             if tgbSidebar is None:
-                tgbSidebar = factory.create_button_toggle('io.github.t00m.MiAZ-sidebar-show-left-symbolic', callback=self.toggle_sidebar)
+                tgbSidebar = self.factory.create_button_toggle('io.github.t00m.MiAZ-sidebar-show-left-symbolic', callback=self.toggle_sidebar)
                 self.app.add_widget('workspace-togglebutton-sidebar', tgbSidebar)
                 tgbSidebar.set_tooltip_text("Show sidebar and filters")
                 tgbSidebar.set_active(True)

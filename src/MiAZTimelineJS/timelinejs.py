@@ -17,12 +17,26 @@ from gi.repository import Peas
 
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 
+plugin_info = {
+        'Module':        'timelinejs',
+        'Name':          'MiAZTimelineJS',
+        'Loader':        'Python3',
+        'Description':   _('Create timeline'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.5',
+        'Category':      _('Visualisation and diagrams'),
+        'Subcategory':   _('Data visualisation')
+    }
+
+
 
 class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZTimelineJSPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
-    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
         """Plugin activation"""
@@ -32,19 +46,20 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
 
         # Others
-        self.srvutl = self.app.get_service('util')
-        self.srvpmg = self.app.get_service('plugin-system')
-        self.srvfty = self.app.get_service('factory')
+        self.actions = self.app.get_service('actions')
+        self.util = self.app.get_service('util')
         self.srvdlg = self.app.get_service('dialogs')
+        self.factory = self.app.get_service('factory')
+        self.webserver = self.app.get_service('webserver')
         self.app = self.object.app
-        workspace = self.app.get_widget('workspace')
-        workspace.connect('workspace-loaded', self.startup)
+        self.workspace = self.app.get_widget('workspace')
+        self.workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
         pass
@@ -52,7 +67,8 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
     def startup(self, *args):
         if not self.plugin.started():
             # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=self.export)
+            mnuItemName = self.plugin.get_menu_item_name()
+            menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Display timeline'), callback=self.export)
 
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)
@@ -61,15 +77,10 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
             self.plugin.set_started(started=True)
 
     def export(self, *args):
-        actions = self.app.get_service('actions')
-        srvdlg = self.app.get_service('dialogs')
-        util = self.app.get_service('util')
         ENV = self.app.get_env()
-        util = self.app.get_service('util')
-        workspace = self.app.get_widget('workspace')
-        window = workspace.get_root()
-        items = workspace.get_selected_items()
-        if actions.stop_if_no_items(items):
+        window = self.workspace.get_root()
+        items = self.workspace.get_selected_items()
+        if self.actions.stop_if_no_items(items):
             return
 
         # Generate timeline data
@@ -82,8 +93,8 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
                 title = item.title
                 timestamp = item.date
                 url = item.title
-                human_date = util.filename_date_human(timestamp)
-                dt = util.string_to_datetime(timestamp)
+                human_date = self.util.filename_date_human(timestamp)
+                dt = self.util.string_to_datetime(timestamp)
                 event = {}
                 text = f"<p>Saved in Category <b>{category}</b> on {human_date}</p><p>Access to <a href='{url}' target='_top'>document</a></p>"
                 event['start_date'] = {}
@@ -99,10 +110,10 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
                 items_error.append(item)
         if len(items_error) > 0:
             body=_(f"At least {len(items_error)} documents couldn't be processed.\nMake sure that all document fields have been correctly set. This error happens usually when you are in review mode")
-            srvdlg.show_error(title=_("Error processing documents"), body=body)
+            self.srvdlg.show_error(title=_("Error processing documents"), body=body)
 
-        webserver = self.app.get_service('webserver')
-        wdir = webserver.get_directory()
+
+        wdir = self.webserver.get_directory()
 
         # Resources: TimelineJS Library
         ## Source
@@ -114,8 +125,8 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
         os.makedirs(os.path.dirname(timelinejs_path_target), exist_ok=True)
         shutil.copy(timelinejs_path_source, timelinejs_path_target)
         ## Target (url)
-        host = webserver.get_host()
-        port = webserver.get_port()
+        host = self.webserver.get_host()
+        port = self.webserver.get_port()
         timelinejs_url = f"http://{host}:{port}/MiAZTimelineJS/js/timeline.js"
 
         # Resources: TimelineJS CSS
@@ -134,7 +145,7 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
 
         # Resources: JSON Data for TimelineJS
         timelinejsdata_path = os.path.join(wdir, 'MiAZTimelineJS', 'timelinejs.json')
-        util.json_save(timelinejsdata_path, timelinejs_data)
+        self.util.json_save(timelinejsdata_path, timelinejs_data)
         timelinejsdata_url = f"http://{host}:{port}/MiAZTimelineJS/timelinejs.json"
 
 
