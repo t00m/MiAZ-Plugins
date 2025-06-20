@@ -47,7 +47,6 @@ class Export2Zip(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZExport2ZipPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
-    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
         """Plugin activation"""

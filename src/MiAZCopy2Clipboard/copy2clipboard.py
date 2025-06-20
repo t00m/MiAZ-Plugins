@@ -34,7 +34,6 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZCopy2ClipboardPlugin'
     object = GObject.Property(type=GObject.Object)
     plugin = None
-    file = __file__.replace('.py', '.plugin')
 
     def do_activate(self):
         """Plugin activation"""
