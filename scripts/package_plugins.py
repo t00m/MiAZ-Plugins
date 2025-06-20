@@ -5,6 +5,11 @@ import glob
 
 print("Purgue unnecessary bits")
 os.system("scripts/delete_pycaches.sh")
+print("")
+
+print("Recreate plugin definitions")
+os.system("python3 scripts/create_plugin_definitions.py src")
+print("")
 
 print("Packaging plugins:")
 for plugin_dir in [os.path.basename(x) for x in glob.glob('src/*')]:
