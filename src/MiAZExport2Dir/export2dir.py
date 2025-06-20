@@ -21,6 +21,20 @@ from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 from MiAZ.backend.models import Country, Date, Group
 from MiAZ.backend.models import Purpose, SentBy, SentTo
 
+plugin_info = {
+        'Module':        'export2dir',
+        'Name':          'MiAZExport2Dir',
+        'Loader':        'Python3',
+        'Description':   _('Export to directory'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.5',
+        'Category':      _('Data Management'),
+        'Subcategory':   _('Export')
+    }
+
 Field = {}
 Field[Date] = 0
 Field[Country] = 1
@@ -55,7 +69,7 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
@@ -77,7 +91,8 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
     def startup(self, *args):
         if not self.plugin.started():
             # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=self.export)
+            mnuItemName = self.plugin.get_menu_item_name()
+            menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Export to directory'), callback=self.export)
 
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)
@@ -186,7 +201,7 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
                             self.log.error("Reason: filename not compliant with MiAZ format")
                 else:
                     for item in self.items:
-                        source = os.path.join(repository.docs, item.id)
+                        source = os.path.join(self.repository.docs, item.id)
                         target = os.path.join(self.target_dir, os.path.basename(item.id))
                         self.util.filename_export(source, target)
                 self.util.directory_open(self.target_dir)
