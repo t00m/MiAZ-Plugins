@@ -8,9 +8,7 @@
 """
 
 import os
-import html
 import shutil
-import tempfile
 
 from gi.repository import GObject
 from gi.repository import Peas

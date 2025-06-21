@@ -8,7 +8,6 @@
 # Description: Plugin for exporting items filenames to plain text
 """
 
-import tempfile
 from gettext import gettext as _
 
 from gi.repository import GObject

@@ -5,17 +5,10 @@
 # File: hello.py
 # Author: Tomás Vírseda
 # License: GPL v3
-# Description: Scan plugin
+# Description: repo switcher plugin
 """
 
-import os
-import re
-import glob
-
-from gi.repository import Adw
-from gi.repository import Gdk
 from gi.repository import Gtk
-from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Peas
 

@@ -9,32 +9,20 @@
 """
 
 import os
-import re
-import glob
 from gettext import gettext as _
 
-from gi.repository import Adw
-from gi.repository import Gdk
 from gi.repository import Gtk
-from gi.repository import Gio
-from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import Peas
 
 from MiAZ.backend.config import MiAZConfig
 from MiAZ.backend.log import MiAZLog
-from MiAZ.backend.models import Document
 from MiAZ.backend.models import File
 from MiAZ.backend.models import MiAZModel
 from MiAZ.frontend.desktop.services.pluginsystem import MiAZPlugin
 from MiAZ.frontend.desktop.widgets.columnview import MiAZColumnViewSelector
 from MiAZ.frontend.desktop.widgets.configview import MiAZConfigView
-from MiAZ.frontend.desktop.widgets.configview import MiAZCountries
-from MiAZ.frontend.desktop.widgets.configview import MiAZGroups
-from MiAZ.frontend.desktop.widgets.configview import MiAZPeopleSentBy
-from MiAZ.frontend.desktop.widgets.configview import MiAZPeopleSentTo
-from MiAZ.frontend.desktop.widgets.configview import MiAZPurposes
 from MiAZ.frontend.desktop.widgets.views import MiAZColumnViewDocuments
 
 
