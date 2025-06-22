@@ -11,7 +11,8 @@
 import os
 from gettext import gettext as _
 
-from gi.repository import Gtk
+
+from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import Peas
@@ -177,7 +178,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
         self.plugin = MiAZPlugin(self.app)
 
         ## Initialize plugin
-        self.plugin.register(self.file, self)
+        self.plugin.register(self, plugin_info)
 
         ## Get logger
         self.log = self.plugin.get_logger()
@@ -202,9 +203,9 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
             # Install plugin submenu
             plugin_menu = Gio.Menu()
-            menuitem = self.factory.create_menuitem(f'{i_confname}-add', _(f'Set {i_confname}'), self._set_property, None, [])
+            menuitem = self.factory.create_menuitem(f'{i_confname}-add', _(f'Assign document(s) to {i_confname}'), self._set_property, None, [])
             plugin_menu.append_item(menuitem)
-            menuitem = self.factory.create_menuitem(f'{i_confname}-del', _(f'Unset {i_confname}'), self._unset_property, None, [])
+            menuitem = self.factory.create_menuitem(f'{i_confname}-del', _(f'Unassign document(s) from any {i_confname}'), self._unset_property, None, [])
             plugin_menu.append_item(menuitem)
             menuitem = self.factory.create_menuitem(f'{i_confname}-mgt', _(f'Manage {i_confname}'), self._manage_properties, None, [])
             plugin_menu.append_item(menuitem)
@@ -270,7 +271,11 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             dialog.present(self.workspace.get_root())
         else:
             parent = self.app.get_widget('window')
-            self.srvdlg.show_error(title=_('Action ignored'), body=_('<big>You must select at least one document</big>'), parent=parent)
+            title = _('Project management')
+            body1 = _('Action ignored')
+            body2 = _('You must select at least one document')
+            body = body1 + '\n' + body2
+            self.srvdlg.show_error(title=title, body=body, parent=parent)
 
     def _get_data(self):
         datafile = self.plugin.get_data_file()
