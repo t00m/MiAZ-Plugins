@@ -25,6 +25,19 @@ from MiAZ.frontend.desktop.widgets.columnview import MiAZColumnViewSelector
 from MiAZ.frontend.desktop.widgets.configview import MiAZConfigView
 from MiAZ.frontend.desktop.widgets.views import MiAZColumnViewDocuments
 
+plugin_info = {
+        'Module':        'projmgt',
+        'Name':          'MiAZProjectMgt',
+        'Loader':        'Python3',
+        'Description':   _('Project management'),
+        'Authors':       'Tomás Vírseda <tomasvirseda@gmail.com>',
+        'Copyright':     'Copyright © 2025 Tomás Vírseda',
+        'Website':       'http://github.com/t00m/MiAZ',
+        'Help':          'http://github.com/t00m/MiAZ/README.adoc',
+        'Version':       '0.6',
+        'Category':      _('Content Organisation'),
+        'Subcategory':   _('Tagging and Classification')
+    }
 
 default_available_data = {}
 
