@@ -8,6 +8,8 @@
 # Description: Scan plugin
 """
 
+import os
+
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import GObject
