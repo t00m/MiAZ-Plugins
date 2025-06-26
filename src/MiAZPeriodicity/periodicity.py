@@ -382,10 +382,11 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
             self._set_property_real([target], pid)
             self.log.debug(f"{i_title} {pid} unset for '{source}' and set to '{target}'")
 
-    def _on_filename_deleted(self, util, fp_source):
-        source = os.path.basename(fp_source)
-        pid = self._get_pid(source)
-        if pid is not None:
-            self._unset_property_real([source])
-            self.log.debug(f"{i_title} {pid} unset for '{source}'")
+    def _on_filename_deleted(self, util, filepaths):
+        for fp_source in filepaths:
+            source = os.path.basename(fp_source)
+            pid = self._get_pid(source)
+            if pid is not None:
+                self._unset_property_real([source])
+                self.log.debug(f"{i_title} {pid} unset for '{source}'")
 
