@@ -233,10 +233,14 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
             self.workspace.register_filter_view(f'{i_title}', self._do_filter_view)
 
+            # Load plugin data
+            self._get_data()
+
             # Plugin configured
             self.plugin.set_started(started=True)
 
     def _do_filter_view(self, item, filter_list_model):
+        # ~ self.log.error("Filtering by project")
         display = False         # set display to false
         doc_id = item.id         # Document to display (or not)
         plugin_name = self.plugin.get_name()
@@ -246,7 +250,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             return True
 
         pid = selected_item.id
-        data = self._get_data()
+        # ~ data = self._get_data()
 
         if pid == 'Any':
             display = True
@@ -254,7 +258,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             display = False
         else:
             try:
-                docs = data[f'{i_confname}'][pid]
+                docs = self.data[f'{i_confname}'][pid]
                 if doc_id in docs:
                     display = True
             except KeyError as error:
@@ -280,14 +284,13 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
     def _get_data(self):
         datafile = self.plugin.get_data_file()
         try:
-            data = self.util.json_load(filepath=datafile)
+            self.data = self.util.json_load(filepath=datafile)
         except FileNotFoundError:
             self.log.debug(f"Creating new data file in {datafile}")
-            data = {}
-            data['documents'] = {}
-            data[f'{i_confname}'] = {}
-            self.util.json_save(filepath=datafile, adict=data)
-        return data
+            self.data = {}
+            self.data['documents'] = {}
+            self.data[f'{i_confname}'] = {}
+            self.util.json_save(filepath=datafile, adict=self.data)
 
     def _on_set_property_response(self, dialog, response, dropdown):
         if response == 'apply':
@@ -308,9 +311,8 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
     def _set_property_real(self, selected_documents, pid):
         change = False
-        data = self._get_data()
-        documents = data['documents']
-        config_data = data[f'{i_confname}']
+        documents = self.data['documents']
+        config_data = self.data[f'{i_confname}']
 
         for doc_id in selected_documents:
             self.log.debug(f"Request to set {i_confname} '{pid}' for document '{doc_id}'")
@@ -326,10 +328,10 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
         # Save data
         if change:
-            data['documents'] = documents
-            data[f'{i_confname}'] = config_data
+            self.data['documents'] = documents
+            self.data[f'{i_confname}'] = config_data
             datafile = self.plugin.get_data_file()
-            self.util.json_save(datafile, data)
+            self.util.json_save(datafile, self.data)
         return change
 
     def _unset_property(self, *args):
@@ -341,21 +343,21 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
     def _unset_property_real(self, selected_documents):
         change = False
-        data = self._get_data()
-        documents = data['documents']
-        config_data = data[f'{i_confname}']
+        # ~ data = self._get_data()
+        documents = self.data['documents']
+        config_data = self.data[f'{i_confname}']
 
         for doc_id in selected_documents:
             self.log.debug(f"Request to unset any {i_confname} for document '{doc_id}'")
-            if doc_id in data.get("documents", {}):
+            if doc_id in self.data.get("documents", {}):
                 # Get the config key before deleting the document
-                pid = data["documents"][doc_id]
-                del data["documents"][doc_id]
+                pid = self.data["documents"][doc_id]
+                del self.data["documents"][doc_id]
 
                 # Remove from config_data if the config key exists
-                if pid in data.get(f'{i_confname}', {}):
+                if pid in self.data.get(f'{i_confname}', {}):
                     # Remove all occurrences of the doc_id from the config_data list
-                    doc_list = data[f'{i_confname}'][pid]
+                    doc_list = self.data[f'{i_confname}'][pid]
                     while doc_id in doc_list:
                         doc_list.remove(doc_id)
                 change = True
@@ -363,7 +365,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
             # Additionally, check all other keys in case the document exists there
             # even if it wasn't in the documents dictionary
-            for pid, doc_list in data.get(f'{i_confname}', {}).items():
+            for pid, doc_list in self.data.get(f'{i_confname}', {}).items():
                 while doc_id in doc_list:
                     doc_list.remove(doc_id)
                     change = True
@@ -371,7 +373,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
         # Save data
         if change:
             datafile = self.plugin.get_data_file()
-            self.util.json_save(datafile, data)
+            self.util.json_save(datafile, self.data)
             self.log.debug(f"{i_title} for {len(selected_documents)} documents removed")
             self.workspace.update()
         else:
