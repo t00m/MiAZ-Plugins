@@ -64,7 +64,9 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
     def startup(self, *args):
         if not self.plugin.started():
             # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=self.export)
+            # ~ menuitem = self.plugin.get_menu_item(callback=self.export)
+            mnuItemName = self.plugin.get_menu_item_name()
+            menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Copy document names'), callback=self.export, shortcuts=['<Control>c'])
 
             # Add plugin to its default (sub)category
             self.plugin.install_menu_entry(menuitem)
