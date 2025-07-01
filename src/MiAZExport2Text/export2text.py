@@ -80,7 +80,8 @@ class Export2Text(GObject.GObject, Peas.Activatable):
         ENV = self.app.get_env()
         parent = self.workspace.get_root()
         items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items(items):
+        if self.actions.stop_if_no_items():
+            self.log.debug("No items selected")
             return
 
         text = ""

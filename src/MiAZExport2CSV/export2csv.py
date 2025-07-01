@@ -77,7 +77,8 @@ class Export2CSV(GObject.GObject, Peas.Activatable):
         ENV = self.app.get_env()
         fields = [_('Date'), _('Country'), _('Group'), _('Send by'), _('Purpose'), _('Concept'), _('Send to'), _('Extension')]
         items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items(items):
+        if self.actions.stop_if_no_items():
+            self.log.debug("No items selected")
             return
 
         rows = []

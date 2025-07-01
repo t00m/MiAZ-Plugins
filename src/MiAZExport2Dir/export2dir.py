@@ -102,7 +102,8 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
 
     def export(self, *args):
         self.items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items(self.items):
+        if self.actions.stop_if_no_items():
+            self.log.debug("No items selected")
             return
         self.target_dir = None
         # Options for the dialog

@@ -74,7 +74,8 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
 
     def export(self, *args):
         items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items(items):
+        if self.actions.stop_if_no_items():
+            self.log.debug("No items selected")
             return
 
         title = _('{num_items} documents copied to clipboard').format(num_items=len(items))

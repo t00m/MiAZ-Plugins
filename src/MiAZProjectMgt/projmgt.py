@@ -384,7 +384,8 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
         item_type = Project
         workspace = self.app.get_widget('workspace')
         items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items(items):
+        if self.actions.stop_if_no_items():
+            self.log.debug("No items selected")
             return
 
         def dialog_response(dialog, response, dropdown, items):
@@ -433,7 +434,8 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
     def project_withdraw(self, *args):
         item_type = Project
         items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items(items):
+        if self.actions.stop_if_no_items():
+            self.log.debug("No items selected")
             return
 
         def dialog_response(dialog, response, dropdown, items):
