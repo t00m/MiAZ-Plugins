@@ -50,6 +50,7 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
         ## Get services
         self.srvdlg = self.app.get_service('dialogs')
         self.actions = self.app.get_service('actions')
+        self.factory = self.app.get_service('factory')
 
         ## Get widgets
         self.workspace = self.app.get_widget('workspace')
