@@ -36,8 +36,8 @@ plugin_info = {
         'Website':       'http://github.com/t00m/MiAZ',
         'Help':          'http://github.com/t00m/MiAZ/README.adoc',
         'Version':       '0.6',
-        'Category':      _('Content Organisation'),
-        'Subcategory':   _('Tagging and Classification')
+        'Category':      'Content Organisation',
+        'Subcategory':   'Tagging and Classification'
     }
 
 default_available_data = {}

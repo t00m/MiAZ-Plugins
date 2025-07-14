@@ -28,8 +28,8 @@ plugin_info = {
         'Website':       'http://github.com/t00m/MiAZ',
         'Help':          'http://github.com/t00m/MiAZ/README.adoc',
         'Version':       '0.6',
-        'Category':      _('Data Management'),
-        'Subcategory':   _('Import')
+        'Category':      'Data Management',
+        'Subcategory':   'Import'
     }
 
 

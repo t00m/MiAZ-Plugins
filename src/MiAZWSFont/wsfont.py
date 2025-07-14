@@ -26,8 +26,8 @@ plugin_info = {
         'Website':       'http://github.com/t00m/MiAZ',
         'Help':          'http://github.com/t00m/MiAZ/README.adoc',
         'Version':       '0.1',
-        'Category':      _('Customisation and Personalisation'),
-        'Subcategory':   _('User Interface')
+        'Category':      'Customisation and Personalisation',
+        'Subcategory':   'User Interface'
     }
 
 
