@@ -2,23 +2,22 @@
 
 import os
 import glob
+import subprocess
 
-print("Purgue unnecessary bits")
-os.system("scripts/delete_pycaches.sh")
+print("Purge unnecessary bits")
+subprocess.run("scripts/delete_pycaches.sh", shell=True, check=True)
 print("")
 
 print("Recreate plugin definitions")
-os.system("python3 scripts/create_plugin_definitions.py src")
+subprocess.run(["python3", "scripts/create_plugin_definitions.py", "src"], check=True)
 print("")
 
 print("Packaging plugins:")
 for plugin_dir in [os.path.basename(x) for x in glob.glob('src/*')]:
     ZIPFILE = f"{plugin_dir}.zip"
     cmd = f"cd src; zip -r {ZIPFILE} {plugin_dir} > /dev/null; cp -f {ZIPFILE} ../plugins; rm -f {ZIPFILE}"
-    os.system(cmd)
+    subprocess.run(cmd, shell=True, check=True)
     print(f" - Plugin {plugin_dir} packaged successfully")
 print("")
-cmd = "python3 ./scripts/build_plugin_index.py"
-os.system(cmd)
+subprocess.run(["python3", "./scripts/build_plugin_index.py"], check=True)
 print("")
-

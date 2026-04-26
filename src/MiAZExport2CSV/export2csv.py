@@ -61,6 +61,7 @@ class Export2CSV(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.debug("Plugin deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -93,7 +94,7 @@ class Export2CSV(GObject.GObject, Peas.Activatable):
             csvwriter.writerow(fields)
             csvwriter.writerows(rows)
         self.util.filename_display(filepath)
-        title=_('Export successfull')
+        title = _('Export successful')
         body = _("Check your default spreadsheet application")
         parent = self.workspace.get_root()
         self.srvdlg.show_info(title=title, body=body, parent=parent)

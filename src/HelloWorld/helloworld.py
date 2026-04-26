@@ -10,6 +10,7 @@
 
 import os
 import sys
+from gettext import gettext as _
 
 from gi.repository import GObject
 from gi.repository import Peas
@@ -66,7 +67,8 @@ class HelloWorld(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         """Plugin deactivation"""
-        print("Deactivation not implemented. Restart app to disable plugins.")
+        self.log.warning("Deactivation not implemented. Restart app to disable plugins.")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -91,8 +93,8 @@ class HelloWorld(GObject.GObject, Peas.Activatable):
     def _on_activate_setting(self, row, gparam):
         active = row.get_active()
         dtype = "info"
-        title = _(f'<big>Row active {active}</big>')
-        body=''
+        title = _('<big>Row active {active}</big>').format(active=active)
+        body = ''
         window = row.get_root()
         dialog = self.srvdlg.create(dtype=dtype, title=title, body=body, widget=None)
         dialog.present(window)

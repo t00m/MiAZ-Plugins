@@ -2,10 +2,10 @@
 # pylint: disable=E1101
 
 """
-# File: export2csv.py
+# File: projmgt.py
 # Author: Tomás Vírseda
 # License: GPL v3
-# Description: Plugin for exporting items to CSV
+# Description: Plugin for project management
 """
 
 import os
@@ -79,16 +79,16 @@ class MiAZColumnViewProject(MiAZColumnViewSelector):
     __gtype_name__ = 'MiAZColumnViewProject'
 
     def __init__(self, app, available=True):
-        item_type=Project
+        item_type = Project
         super().__init__(app, item_type)
         self.cv.append_column(self.column_id)
         self.column_id.set_visible(False)
         self.column_title.set_title(_('Project Id'))
         self.cv.append_column(self.column_title)
         if available:
-            title = _(f"{item_type.__title_plural__} available")
+            title = _('{title} available').format(title=item_type.__title_plural__)
         else:
-            title = _(f"{item_type.__title_plural__} enabled")
+            title = _('{title} enabled').format(title=item_type.__title_plural__)
         self.column_title.set_title(title)
 
 # Configuration view
@@ -136,16 +136,16 @@ class MiAZProjectsView(MiAZConfigView):
             self.log.debug(f"{i_title} {item_id} removed from de list of used items")
             self.config.save_available(items=items_available)
             self.update_views()
-            title = f"{i_title} management"
-            body = f"{i_title} {item_desc} disabled"
+            title = _('{i_title} management').format(i_title=i_title)
+            body = _('{i_title} {item_desc} disabled').format(i_title=i_title, item_desc=item_desc)
             self.srvdlg.show_warning(title=title, body=body, parent=self)
 
         else:
-            text = _(f'{i_title} {item_desc} is still being used by {len(docs)} documents')
+            text = _('{i_title} {item_desc} is still being used by {count} documents').format(
+                i_title=i_title, item_desc=item_desc, count=len(docs))
             self.log.error(text)
             window = self.viewSl.get_root()
-            title = f"{i_title} {item_desc} can't be removed"
-            title = "Action not possible"
+            title = _('Action not possible')
             items = []
             for doc in docs:
                 items.append(File(id=doc, title=os.path.basename(doc)))
@@ -154,15 +154,6 @@ class MiAZProjectsView(MiAZConfigView):
             widget = Gtk.Frame()
             widget.set_child(view)
             self.srvdlg.show_error(title=title, body=text, widget=widget, width=600, height=480, parent=window)
-
-# ~ Configview = {}
-# ~ Configview['Country'] = MiAZCountries
-# ~ Configview['Group'] = MiAZGroups
-# ~ Configview['Purpose'] = MiAZPurposes
-# ~ Configview['SentBy'] = MiAZPeopleSentBy
-# ~ Configview['SentTo'] = MiAZPeopleSentTo
-# ~ Configview['Project'] = MiAZProjectsView
-# ~ Configview['Date'] = Gtk.Calendar
 
 
 class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
@@ -195,6 +186,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.debug("Plugin deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -203,11 +195,20 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
             # Install plugin submenu
             plugin_menu = Gio.Menu()
-            menuitem = self.factory.create_menuitem(f'{i_confname}-add', _(f'Assign document(s) to {i_confname}'), self._set_property, None, [])
+            menuitem = self.factory.create_menuitem(
+                f'{i_confname}-add',
+                _('Assign document(s) to {i_confname}').format(i_confname=i_confname),
+                self._set_property, None, [])
             plugin_menu.append_item(menuitem)
-            menuitem = self.factory.create_menuitem(f'{i_confname}-del', _(f'Unassign document(s) from any {i_confname}'), self._unset_property, None, [])
+            menuitem = self.factory.create_menuitem(
+                f'{i_confname}-del',
+                _('Unassign document(s) from any {i_confname}').format(i_confname=i_confname),
+                self._unset_property, None, [])
             plugin_menu.append_item(menuitem)
-            menuitem = self.factory.create_menuitem(f'{i_confname}-mgt', _(f'Manage {i_confname}'), self._manage_properties, None, [])
+            menuitem = self.factory.create_menuitem(
+                f'{i_confname}-mgt',
+                _('Manage {i_confname}').format(i_confname=i_confname),
+                self._manage_properties, None, [])
             plugin_menu.append_item(menuitem)
             submenu.append_submenu(f"{i_title}", plugin_menu)
 
@@ -217,7 +218,6 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
             # Get config
             self.config = MiAZConfigProjects(self.app, self.plugin)
-            self.config.test()
 
             # Dropdown for custom filters
             plugin_name = self.plugin.get_name()
@@ -240,7 +240,6 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             self.plugin.set_started(started=True)
 
     def _do_filter_view(self, item, filter_list_model):
-        # ~ self.log.error("Filtering by project")
         display = False         # set display to false
         doc_id = item.id         # Document to display (or not)
         plugin_name = self.plugin.get_name()
@@ -250,7 +249,6 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             return True
 
         pid = selected_item.id
-        # ~ data = self._get_data()
 
         if pid == 'Any':
             display = True
@@ -261,7 +259,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
                 docs = self.data[f'{i_confname}'][pid]
                 if doc_id in docs:
                     display = True
-            except KeyError as error:
+            except KeyError:
                 display = False
         return display
 
@@ -270,7 +268,9 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
         if len(selected_items) > 0:
             dropdown = self.factory.create_dropdown_generic(item_type=item_type, ellipsize=True, enable_search=True)
             self.actions.dropdown_populate(self.config, dropdown, item_type, False, False)
-            dialog = self.srvdlg.show_action(title=f'Manage {i_confname}', widget=dropdown)
+            dialog = self.srvdlg.show_action(
+                title=_('Manage {i_confname}').format(i_confname=i_confname),
+                widget=dropdown)
             dialog.connect('response', self._on_set_property_response, dropdown)
             dialog.present(self.workspace.get_root())
         else:
@@ -307,7 +307,10 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             if change:
                 self.workspace.update()
                 self.log.debug(f"{i_title} {config_item.title} set to {len(selected_documents)} documents")
-                self.srvdlg.show_info(title=f'{i_title} management', body=f"{i_title} {config_item.title} set to {len(selected_documents)} documents", parent=dialog.get_root())
+                title = _('{i_title} management').format(i_title=i_title)
+                body = _('{i_title} {title} set to {count} documents').format(
+                    i_title=i_title, title=config_item.title, count=len(selected_documents))
+                self.srvdlg.show_info(title=title, body=body, parent=dialog.get_root())
 
     def _set_property_real(self, selected_documents, pid):
         change = False
@@ -339,11 +342,12 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
         for item in self.workspace.get_selected_items():
             selected_documents.append(item.id)
         self._unset_property_real(selected_documents)
-        self.srvdlg.show_info(title=f'{i_title} management', body=f'Removed {i_confname} for selected documents', parent=self.workspace.get_root())
+        title = _('{i_title} management').format(i_title=i_title)
+        body = _('Removed {i_confname} for selected documents').format(i_confname=i_confname)
+        self.srvdlg.show_info(title=title, body=body, parent=self.workspace.get_root())
 
     def _unset_property_real(self, selected_documents):
         change = False
-        # ~ data = self._get_data()
         documents = self.data['documents']
         config_data = self.data[f'{i_confname}']
 
@@ -380,122 +384,6 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
             self.log.debug(f"No changes detected for {i_confname} for {len(selected_documents)}")
         return change
 
-    def project_assign(self, *args):
-        item_type = Project
-        workspace = self.app.get_widget('workspace')
-        items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items():
-            self.log.debug("No items selected")
-            return
-
-        def dialog_response(dialog, response, dropdown, items):
-            if response == 'apply':
-                pid = dropdown.get_selected_item().id
-                docs = []
-                for item in items:
-                    docs.append(os.path.basename(item.id))
-                projects = self.app.get_service('Projects')
-                projects.add_batch(pid, docs)
-                workspace = self.app.get_widget('workspace')
-                self.workspace.update()
-
-        config = self.app.get_config_dict()
-        i_type = item_type.__gtype_name__
-        box = self.factory.create_box_vertical(spacing=6, vexpand=True, hexpand=True)
-        dropdown = self.factory.create_dropdown_generic(Project)
-        self.config.connect('used-updated', self.actions.dropdown_populate, dropdown, item_type, False, False)
-        self.actions.dropdown_populate(self.config, dropdown, Project, any_value=False)
-        btnManage = self.factory.create_button('io.github.t00m.MiAZ-res-projects', '')
-        btnManage.connect('clicked', self.actions.manage_resource, Configview['Project'](self.app))
-        label = self.factory.create_label(_('Assign the following documents to this project: '))
-        frame = Gtk.Frame()
-        cv = MiAZColumnViewMassProject(self.app)
-        # ~ cv.get_style_context().add_class(class_name='caption')
-        cv.set_hexpand(True)
-        cv.set_vexpand(True)
-        citems = []
-        projects = self.app.get_service('Projects')
-        for item in items:
-            tprojects = ', '.join([projects.description(pid) for pid in projects.assigned_to(item.id)])
-            citems.append(File(id=item.id, title=f"<b>{tprojects}</b>"))
-        cv.update(citems)
-        frame.set_child(cv)
-        hbox = self.factory.create_box_horizontal(hexpand=False, vexpand=False)
-        hbox.append(label)
-        hbox.append(dropdown)
-        hbox.append(btnManage)
-        box.append(hbox)
-        box.append(frame)
-        window = self.app.get_widget('window')
-        dialog = self.srvdlg.show_question(title=_('Assign document(s) to a project'), widget=box, width=800, height=600)
-        dialog.connect('response', dialog_response, dropdown, items)
-        dialog.present(window)
-
-    def project_withdraw(self, *args):
-        item_type = Project
-        items = self.workspace.get_selected_items()
-        if self.actions.stop_if_no_items():
-            self.log.debug("No items selected")
-            return
-
-        def dialog_response(dialog, response, dropdown, items):
-            if response == 'apply':
-                projects = self.app.get_service('Projects')
-                pid = dropdown.get_selected_item().id
-                docs = []
-                for item in items:
-                    docs.append(os.path.basename(item.id))
-                projects.remove_batch(pid, docs)
-                workspace = self.app.get_widget('workspace')
-                self.workspace.update()
-
-
-        config = self.app.get_config_dict()
-        i_type = item_type.__gtype_name__
-        box = self.factory.create_box_vertical(spacing=6, vexpand=True, hexpand=True)
-        dropdown = self.factory.create_dropdown_generic(Project)
-        self.config.connect('used-updated', self.actions.dropdown_populate, dropdown, item_type, False, False)
-
-        # Get projects
-        projects = self.app.get_service('Projects')
-        sprojects = set()
-        for item in items:
-            for project in projects.assigned_to(item.id):
-                sprojects.add(project)
-
-        self.actions.dropdown_populate(self.config, dropdown, Project, any_value=False, only_include=list(sprojects))
-        btnManage = self.factory.create_button('io.github.t00m.MiAZ-res-projects', '')
-        btnManage.connect('clicked', self.actions.manage_resource, Configview['Project'](self.app))
-        label = self.factory.create_label(_('Withdraw the following documents from this project: '))
-        frame = Gtk.Frame()
-        cv = MiAZColumnViewMassProject(self.app)
-        # ~ cv.get_style_context().add_class(class_name='caption')
-        cv.set_hexpand(True)
-        cv.set_vexpand(True)
-        citems = []
-        for item in items:
-            tprojects = ', '.join([projects.description(pid) for pid in projects.assigned_to(item.id)])
-            citems.append(File(id=item.id, title=f"<b>{tprojects}</b>"))
-        cv.update(citems)
-        frame.set_child(cv)
-        hbox = self.factory.create_box_horizontal(hexpand=False, vexpand=False)
-        hbox.append(label)
-        hbox.append(dropdown)
-        hbox.append(btnManage)
-        box.append(hbox)
-        box.append(frame)
-        window = self.app.get_widget('window')
-        dialog = self.srvdlg.show_question(title=_('Withdraw from project'), widget=box, width=800, height=600)
-        dialog.connect('response', dialog_response, dropdown, items)
-        dialog.present(window)
-
-    def project_manage(self, *args):
-        self.actions.show_repository_settings()
-        winRepoSettings = self.app.get_widget('settings-repo')
-        if winRepoSettings is not None:
-            notebook = self.app.get_widget('repository-settings-notebook')
-            notebook.set_current_page(5)
-
     def project_view(self, *args):
         def _on_selected_project(dropdown, gparamobject, cv):
             srvprj = self.app.get_service('Projects')
@@ -516,7 +404,6 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
         # Get projects
         item_type = Project
-        i_type = item_type.__gtype_name__
         config = self.app.get_config_dict()
         dropdown = self.factory.create_dropdown_generic(Project)
         dropdown.connect('notify::selected-item', _on_selected_project, cv)
@@ -524,7 +411,7 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
 
         # dialog
         box = self.factory.create_box_vertical(hexpand=True, vexpand=True)
-        box.get_style_context().add_class(class_name='toolbar')
+        box.add_css_class('toolbar')
         box.append(dropdown)
         box.append(frame)
         window = self.app.get_widget('window')
@@ -534,9 +421,11 @@ class MiAZProjectMgt(GObject.GObject, Peas.Activatable):
         parent = self.app.get_widget('window')
         self.show_settings(widget=parent)
 
-    def show_settings(self, widget: Gtk.Widget=None):
+    def show_settings(self, widget: Gtk.Widget = None):
         config_dir = self.plugin.get_config_dir()
         configview = MiAZProjectsView(self.app, plugin=self.plugin, config=self.config)
         configview.update_views()
-        dialog = self.srvdlg.show_noop(title=f'Manage {i_confname}', widget=configview, width=800, height=600)
+        dialog = self.srvdlg.show_noop(
+            title=_('Manage {i_confname}').format(i_confname=i_confname),
+            widget=configview, width=800, height=600)
         dialog.present(widget.get_root())

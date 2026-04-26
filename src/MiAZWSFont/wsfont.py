@@ -8,6 +8,8 @@
 # Description: Workspace font plugin manager
 """
 
+from gettext import gettext as _
+
 from gi.repository import Adw
 from gi.repository import Gdk
 from gi.repository import GObject
@@ -59,6 +61,7 @@ class MiAZWSFontPlugin(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -120,7 +123,7 @@ class MiAZWSFontPlugin(GObject.GObject, Peas.Activatable):
         dialog.present(self.workspace)
 
     def _on_font_changed(self, *args):
-        print(args)
+        self.log.debug("Font changed: %s", args)
 
     def _on_change_font_properties(self, *args):
         wsview = self.workspace.get_workspace_view()
@@ -160,37 +163,3 @@ class MiAZWSFontPlugin(GObject.GObject, Peas.Activatable):
 
         # Update plugin config
         self.plugin.set_config_key('icon_visible', visible)
-
-
-    def show_settings(self, widget):
-        util = self.app.get_service('util')
-
-        # ~ # Build preferences dialog
-        # ~ dialog = Adw.PreferencesDialog()
-        # ~ desc = self.plugin.get_plugin_info_key('Description')
-        # ~ page_title = _(desc)
-        # ~ page_icon = "io.github.t00m.MiAZ-preferences-ui"
-        # ~ page = Adw.PreferencesPage(title=page_title, icon_name=page_icon)
-        # ~ dialog.add(page)
-        # ~ group = Adw.PreferencesGroup()
-        # ~ group.set_title('User interface')
-        # ~ page.add(group)
-
-        # ~ # Row for option "Display Sidebar Togglebutton?"
-        # ~ row = Adw.SwitchRow(title=_("Display Sidebar togglebutton?"))
-        # ~ row.connect('notify::active', self._on_activate_setting)
-
-        # ~ config = self.plugin.get_config_data()
-        # ~ try:
-            # ~ visible = config['icon_visible']
-        # ~ except:
-            # ~ visible = config['icon_visible'] = True
-            # ~ self.plugin.set_config_data(config)
-
-        # ~ tgbWSToggleView = self.app.get_widget('workspace-togglebutton-sidebar')
-        # ~ row.set_active(visible)
-        # ~ group.add(row)
-
-        # ~ dialog.present(widget.get_root())
-
-

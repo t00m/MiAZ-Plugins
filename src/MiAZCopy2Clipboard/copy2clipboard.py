@@ -2,7 +2,7 @@
 # pylint: disable=E1101
 
 """
-# File: export2text.py
+# File: copy2clipboard.py
 # Author: Tomás Vírseda
 # License: GPL v3
 # Description: Plugin for exporting items filenames to plain text
@@ -61,11 +61,11 @@ class Copy2Clipboard(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
             # Create menu item for plugin
-            # ~ menuitem = self.plugin.get_menu_item(callback=self.export)
             mnuItemName = self.plugin.get_menu_item_name()
             menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Copy document names'), callback=self.export, shortcuts=['<Control>c'])
 

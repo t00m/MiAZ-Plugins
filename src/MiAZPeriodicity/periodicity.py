@@ -2,13 +2,14 @@
 # pylint: disable=E1101
 
 """
-# File: hello.py
+# File: periodicity.py
 # Author: Tomás Vírseda
 # License: GPL v3
-# Description: Scan plugin
+# Description: Periodicity plugin
 """
 
 import os
+from gettext import gettext as _
 
 from gi.repository import Gtk
 from gi.repository import Gio
@@ -95,12 +96,12 @@ class MiAZColumnViewPeriodicity(MiAZColumnViewSelector):
         super().__init__(app, item_type)
         self.cv.append_column(self.column_id)
         self.column_id.set_visible(False)
-        self.column_title.set_title(_(f'{i_title} Id'))
+        self.column_title.set_title(_('{title} Id').format(title=i_title))
         self.cv.append_column(self.column_title)
         if available:
-            title = _(f"{item_type.__title_plural__} available")
+            title = _('{title} available').format(title=item_type.__title_plural__)
         else:
-            title = _(f"{item_type.__title_plural__} enabled")
+            title = _('{title} enabled').format(title=item_type.__title_plural__)
         self.column_title.set_title(title)
 
 
@@ -163,6 +164,7 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -224,7 +226,7 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
                 docs = data[f'{i_confname}'][pid]
                 if doc_id in docs:
                     display = True
-            except KeyError as error:
+            except KeyError:
                 display = False
         return display
 
@@ -268,7 +270,9 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
             if change:
                 self.workspace.update()
                 self.log.debug(f"{i_title} {config_item.title} set to {len(selected_documents)} documents")
-                self.srvdlg.show_info(title=_('{i_title} management').format(i_title=i_title), body=f"{i_title} {config_item.title} set to {len(selected_documents)} documents", parent=parent)
+                body = _('{i_title} {title} set to {count} documents').format(
+                    i_title=i_title, title=config_item.title, count=len(selected_documents))
+                self.srvdlg.show_info(title=_('{i_title} management').format(i_title=i_title), body=body, parent=parent)
 
     def _set_property_real(self, selected_documents, pid):
         change = False
@@ -302,7 +306,10 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         for item in self.workspace.get_selected_items():
             selected_documents.append(item.id)
         self._unset_property_real(selected_documents)
-        self.srvdlg.show_info(title=f'{i_title} management', body=f'Removed {i_confname} for selected documents', parent=parent)
+        self.srvdlg.show_info(
+            title=_('{i_title} management').format(i_title=i_title),
+            body=_('Removed {i_confname} for selected documents').format(i_confname=i_confname),
+            parent=parent)
 
     def _unset_property_real(self, selected_documents):
         change = False
@@ -345,11 +352,11 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
 
     def show_settings(self, *args):
         try:
-            if isinstance(Gtk.Widget, args[0]):
+            if isinstance(args[0], Gtk.Widget):
                 widget = args[0]
             else:
                 widget = None
-        except TypeError:
+        except (TypeError, IndexError):
             widget = None
 
         if widget is None:
@@ -360,12 +367,13 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
         config_dir = self.plugin.get_config_dir()
         configview = MiAZPeriodicityView(self.app, plugin=self.plugin, config=self.config)
         configview.update_views()
-        dialog = self.srvdlg.show_noop(title=f'Manage {i_confname}', widget=configview, width=800, height=600)
+        dialog = self.srvdlg.show_noop(
+            title=_('{i_confname} management').format(i_confname=i_confname),
+            widget=configview, width=800, height=600)
         dialog.present(parent)
 
     def _get_pid(self, doc_id):
-        """Return the property key associated to a document
-        """
+        """Return the property key associated to a document"""
         data = self._get_data()
         documents = data['documents']
         try:
@@ -389,4 +397,3 @@ class MiAZPeriodicityPlugin(GObject.GObject, Peas.Activatable):
             if pid is not None:
                 self._unset_property_real([source])
                 self.log.debug(f"{i_title} {pid} unset for '{source}'")
-

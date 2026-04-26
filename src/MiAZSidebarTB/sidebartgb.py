@@ -2,11 +2,13 @@
 # pylint: disable=E1101
 
 """
-# File: hello.py
+# File: sidebartgb.py
 # Author: Tomás Vírseda
 # License: GPL v3
-# Description: Scan plugin
+# Description: Sidebar toggle button plugin
 """
+
+from gettext import gettext as _
 
 from gi.repository import Adw
 from gi.repository import Gdk
@@ -57,6 +59,7 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -71,7 +74,7 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
                 tgbSidebar.set_tooltip_text("Show sidebar and filters")
                 tgbSidebar.set_active(True)
                 tgbSidebar.set_hexpand(False)
-                tgbSidebar.get_style_context().add_class(class_name='dimmed')
+                tgbSidebar.add_css_class('dimmed')
 
                 visible = self.plugin.get_config_key('icon_visible')
                 if visible is None:
@@ -121,10 +124,7 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
         # Update plugin config
         self.plugin.set_config_key('icon_visible', visible)
 
-
     def show_settings(self, widget):
-        util = self.app.get_service('util')
-
         # Build preferences dialog
         dialog = Adw.PreferencesDialog()
         desc = self.plugin.get_plugin_info_key('Description')
@@ -143,7 +143,7 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
         config = self.plugin.get_config_data()
         try:
             visible = config['icon_visible']
-        except:
+        except KeyError:
             visible = config['icon_visible'] = True
             self.plugin.set_config_data(config)
 
@@ -152,5 +152,3 @@ class MiAZSidebarTBPlugin(GObject.GObject, Peas.Activatable):
         group.add(row)
 
         dialog.present(widget.get_root())
-
-

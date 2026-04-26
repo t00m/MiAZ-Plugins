@@ -73,11 +73,11 @@ class Export2Zip(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
-         if not self.plugin.started():
+        if not self.plugin.started():
             # Create menu item for plugin
-            menuitem = self.plugin.get_menu_item(callback=self.export)
             mnuItemName = self.plugin.get_menu_item_name()
             menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Create a ZIP file'), callback=self.export)
 
@@ -118,12 +118,11 @@ class Export2Zip(GObject.GObject, Peas.Activatable):
                 shutil.rmtree(dir_zip)
                 self.util.directory_open(self.target_dir)
 
-                title=_('Export successfull')
+                title = _('Export successful')
                 body = _('Check your default file browser')
                 parent = self.workspace.get_root()
                 self.srvdlg.show_info(title=title, body=body, parent=parent)
 
         except Exception as error:
-            self.srvdlg.show_error(title=_('Export error'), body=error)
+            self.srvdlg.show_error(title=_('Export error'), body=str(error))
             self.log.error(f"Error selecting files: {error}")
-

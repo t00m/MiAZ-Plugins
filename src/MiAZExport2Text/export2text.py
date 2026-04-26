@@ -31,7 +31,6 @@ plugin_info = {
     }
 
 
-
 class Export2Text(GObject.GObject, Peas.Activatable):
     __gtype_name__ = 'MiAZExport2TextPlugin'
     object = GObject.Property(type=GObject.Object)
@@ -62,6 +61,7 @@ class Export2Text(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -74,7 +74,6 @@ class Export2Text(GObject.GObject, Peas.Activatable):
 
             # Plugin configured
             self.plugin.set_started(started=True)
-
 
     def export(self, *args):
         ENV = self.app.get_env()
@@ -90,8 +89,7 @@ class Export2Text(GObject.GObject, Peas.Activatable):
         fp, filepath = tempfile.mkstemp(dir=ENV['LPATH']['TMP'], suffix='.txt')
         with open(filepath, 'w') as temp:
             temp.write(text)
-        temp.close()
         self.util.filename_display(filepath)
-        title = _('Export successfull')
+        title = _('Export successful')
         body = _('Check your default text editor')
         self.srvdlg.show_info(title=title, body=body, parent=parent)

@@ -2,11 +2,13 @@
 # pylint: disable=E1101
 
 """
-# File: hello.py
+# File: reposwitcher.py
 # Author: Tomás Vírseda
 # License: GPL v3
 # Description: repo switcher plugin
 """
+
+from gettext import gettext as _
 
 from gi.repository import Gtk
 from gi.repository import GObject
@@ -53,16 +55,12 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
         self.factory = self.app.get_service('factory')
 
         # Connect signals to startup
-        actions = self.app.get_service('actions')
         self.workspace = self.app.get_widget('workspace')
         self.workspace.connect('workspace-loaded', self.startup)
-        # ~ self.actions.connect('settings-loaded', self._on_settings_loaded)
 
     def do_deactivate(self):
-        self.log.error("Plugin deactivated")
-
-    def check_plugin(self, *args):
-        self.log.info(f"Plugin loaded? {self.plugin_info.is_loaded()}")
+        self.log.warning("Plugin deactivated")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -102,9 +100,7 @@ class MiAZSidebarRepoSwitcher(GObject.GObject, Peas.Activatable):
             self.plugin.set_started(started=True)
 
     def _on_use_repo(self, *args):
-        """NEW METHOD: Restart Application to avoid issues with plugins
-        not being able to disable their functionality
-        """
+        """Restart Application to avoid issues with plugins not being able to disable their functionality"""
         dd_repo = self.app.get_widget('sidebar-repo-switcher')
         repo = dd_repo.get_selected_item()
         if repo is None:

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-# File: timelineseq.py
+# File: timelinejs.py
 # Author: Tomás Vírseda
 # License: GPL v3
 # Description: Example of MiAZuser plugin
@@ -9,6 +9,7 @@
 
 import os
 import shutil
+from gettext import gettext as _
 
 from gi.repository import GObject
 from gi.repository import Peas
@@ -55,12 +56,12 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
         self.srvdlg = self.app.get_service('dialogs')
         self.factory = self.app.get_service('factory')
         self.webserver = self.app.get_service('webserver')
-        self.app = self.object.app
         self.workspace = self.app.get_widget('workspace')
         self.workspace.connect('workspace-loaded', self.startup)
 
     def do_deactivate(self):
-        pass
+        self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -108,7 +109,7 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
             except AttributeError as error:
                 items_error.append(item)
         if len(items_error) > 0:
-            body=_(f"At least {len(items_error)} documents couldn't be processed.\nMake sure that all document fields have been correctly set. This error happens usually when you are in review mode")
+            body = _("At least {count} documents couldn't be processed.\nMake sure that all document fields have been correctly set. This error happens usually when you are in review mode").format(count=len(items_error))
             self.srvdlg.show_error(title=_("Error processing documents"), body=body)
 
 
@@ -135,10 +136,9 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
         ## Target (path)
         timelinecss_path_target = os.path.join(wdir, 'MiAZTimelineJS', 'css', 'timeline.css')
         self.log.debug(f"TimelineJS CSS Source: {timelinecss_path_source}")
-        self.log.debug(f"TimelineJS CSSTarget: {timelinecss_path_target}")
+        self.log.debug(f"TimelineJS CSS Target: {timelinecss_path_target}")
         os.makedirs(os.path.dirname(timelinecss_path_target), exist_ok=True)
-        shutil.rmtree(os.path.dirname(timelinecss_path_target))
-        shutil.copytree(os.path.dirname(timelinecss_path_source), os.path.dirname(timelinecss_path_target))
+        shutil.copytree(os.path.dirname(timelinecss_path_source), os.path.dirname(timelinecss_path_target), dirs_exist_ok=True)
         ## Target (url)
         timelinecss_url = f"http://{host}:{port}/MiAZTimelineJS/css/timeline.css"
 
@@ -175,6 +175,7 @@ class MiAZTimelineJSPlugin(GObject.GObject, Peas.Activatable):
 </html>"""
 
         timelinejs_page = os.path.join(ENV['LPATH']['HTML'], 'MiAZTimelineJS', 'timeline.html')
+        os.makedirs(os.path.dirname(timelinejs_page), exist_ok=True)
         with open(timelinejs_page, 'w') as fhtml:
             fhtml.write(TPL_TIMELINE)
 

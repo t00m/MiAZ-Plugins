@@ -2,7 +2,7 @@
 # pylint: disable=E1101
 
 """
-# File: hello.py
+# File: scan.py
 # Author: Tomás Vírseda
 # License: GPL v3
 # Description: Scan plugin
@@ -11,6 +11,7 @@
 import os
 import re
 import glob
+from gettext import gettext as _
 
 from gi.repository import Gio
 from gi.repository import GObject
@@ -64,9 +65,10 @@ class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
 
     def do_deactivate(self):
         self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
-       if not self.plugin.started():
+        if not self.plugin.started():
             # Create menu item for plugin
             mnuItemName = self.plugin.get_menu_item_name()
             menuitem = self.factory.create_menuitem(name=mnuItemName, label=_('Scan a document'), callback=self.exec_scanner)
@@ -92,8 +94,7 @@ class MiAZImportFromScanPlugin(GObject.GObject, Peas.Activatable):
                             scanapp = appinfo
                             break
                 except TypeError as error:
-                    pass
-                    # ~ self.log.error(f"Plugin 'scan' couldn't be activated: {error}")
+                    self.log.debug(f"Skipping desktop entry '{desktop_name}': {error}")
 
         except AttributeError as error:
             # Not available in Windows/MSYS2

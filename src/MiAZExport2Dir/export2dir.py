@@ -86,7 +86,8 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         self.srvdlg = self.app.get_service('dialogs')
 
     def do_deactivate(self):
-        print("do_deactivate")
+        self.log.warning("Deactivation not implemented")
+        self.plugin.set_started(False)
 
     def startup(self, *args):
         if not self.plugin.started():
@@ -119,7 +120,7 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         self.etyPattern.set_valign(Gtk.Align.CENTER)
         self.etyPattern.set_text('CYmGP')  # /{target}/{Country}/{Year}/{month}/{Group}/{Purpose}
         widgets = []
-        label = Gtk.Label.new (_('Each letter represent a directory:\n'))
+        label = Gtk.Label.new(_('Each letter represent a directory:\n'))
         widgets.append(label)
         for key in Patterns:
             label = Gtk.Label()
@@ -141,7 +142,6 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         button.set_valign(Gtk.Align.CENTER)
         button.set_label('Select folder')
         button.connect('clicked', self._on_select_folder)
-        # ~ self.row_target = self.factory.create_actionrow(title='Select target folder', subtitle='No target folder set yet', suffix=button)
         self.row_target = Adw.ActionRow(title=_('Select target folder'))
         self.row_target.set_subtitle(_('No target folder set yet'))
         self.row_target.add_suffix(button)
@@ -150,7 +150,7 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
 
         # Dialog
         parent = self.app.get_widget('window')
-        title = 'Export to directory'
+        title = _('Export to directory')
         dialog = self.srvdlg.show_action(title=title, callback=self._on_dialog_response, widget=frame, width=800)
         dialog.present(parent)
 
@@ -163,7 +163,7 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
             self.target_dir = folder.get_path()
             self.row_target.set_subtitle(self.target_dir)
         except Exception as error:
-            self.srvdlg.show_error(title='Error selecting files', body=error)
+            self.srvdlg.show_error(title='Error selecting files', body=str(error))
             self.log.error(f"Error selecting files: {error}")
 
     def _on_dialog_response(self, dialog, response, data):
@@ -183,7 +183,6 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
         if response == 'apply':
             target_dir_valid = os.path.exists(self.target_dir)
             if self.target_dir is not None and target_dir_valid:
-                # ~ dirpath = self.target_dir
                 if self.chkPattern.get_active():
                     keys = [key for key in self.etyPattern.get_text()]
                     for item in self.items:
@@ -207,7 +206,7 @@ class Export2Dir(GObject.GObject, Peas.Activatable):
                         self.util.filename_export(source, target)
                 self.util.directory_open(self.target_dir)
                 window = self.workspace.get_root()
-                body = f"<big>Check your default file browser</big>"
-                self.srvdlg.create(dtype='info', title=_('Export successfull'), body=body).present()
+                body = _('<big>Check your default file browser</big>')
+                self.srvdlg.create(dtype='info', title=_('Export successful'), body=body).present()
         else:
             self.srvdlg.show_error(title=_('Action canceled'), body=_('No documents exported'))
